@@ -2,9 +2,9 @@
 const CONFIG = {
     WEATHER_API_KEY: 'bd5e378503939ddaee76f12ad7a97608',
     GNEWS_API_KEY: '8212b5b99e7bd08e8f570e27891b8bcb',
-    CURRENTS_API_KEY: '7L8yNTVdO2Kd6pNIkmA0R2yIHKlOECR4YyXWnYkIP4cLZwYi', // Free key
+    CURRENTS_API_KEY: '7L8yNTVdO2Kd6pNIkmA0R2yIHKlOECR4YyXWnYkIP4cLZwYi',
     NEWS_API_KEY: 'pub_45510b243dd7ce29fdf845a2e7940cec57568',
-    CACHE_DURATION: 0, // No caching - always fetch fresh data
+    CACHE_DURATION: 0,
     USE_REAL_DATA: true,
     MAX_RETRIES: 3,
     TIMEOUT: 10000
@@ -48,11 +48,14 @@ try {
 // ==================== APP STATE ====================
 let state = {
     currentCity: 'London',
+    savedCities: ['London', 'New York', 'Tokyo', 'Paris', 'Sydney', 'Dubai', 'Singapore', 'Moscow'],
     currentUnit: 'celsius',
     darkMode: false,
     notifications: false,
     currentNewsCategory: 'general',
     locationEnabled: false,
+    manualLocation: true, // Default to manual mode
+    useGPS: false,
     apiStatus: {
         weather: true,
         gnews: true,
@@ -76,7 +79,6 @@ const notificationsToggle = document.getElementById('notificationsToggle');
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
-    // Show splash screen for 2 seconds
     setTimeout(() => {
         splashScreen.style.display = 'none';
         mainApp.style.display = 'block';
@@ -84,7 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadPreferences();
     
-    // Fetch real data immediately
+    // Load saved cities from localStorage
+    loadSavedCities();
+    
     fetchRealTimeData();
     
     setupEventListeners();
@@ -93,17 +97,195 @@ document.addEventListener('DOMContentLoaded', () => {
         displayTelegramUser();
     }
     
-    // Update time display
     updateTimestamps();
     setInterval(updateTimestamps, 60000);
+    
+    // Populate saved cities dropdown
+    updateCitiesDropdown();
 });
+
+// ==================== LOCATION MANAGEMENT ====================
+
+// Load saved cities from localStorage
+function loadSavedCities() {
+    const saved = localStorage.getItem('savedCities');
+    if (saved) {
+        try {
+            state.savedCities = JSON.parse(saved);
+        } catch (e) {
+            console.log('Error loading saved cities');
+        }
+    }
+}
+
+// Save cities to localStorage
+function saveCities() {
+    localStorage.setItem('savedCities', JSON.stringify(state.savedCities));
+}
+
+// Update cities dropdown in settings
+function updateCitiesDropdown() {
+    const container = document.getElementById('savedCitiesContainer');
+    if (!container) return;
+    
+    let html = '<div class="cities-grid">';
+    state.savedCities.forEach(city => {
+        html += `
+            <div class="city-chip" onclick="setCity('${city}')">
+                <span>${city}</span>
+                <button class="remove-city" onclick="removeCity('${city}'); event.stopPropagation();">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    // Also update weather search placeholder with saved cities
+    const weatherSearch = document.getElementById('weatherSearch');
+    if (weatherSearch) {
+        weatherSearch.placeholder = `Search city (e.g., ${state.savedCities[0]})`;
+    }
+    
+    // Add saved cities section to settings if not exists
+    const settingsSection = document.querySelector('.settings-section');
+    if (settingsSection && !document.getElementById('savedCitiesSection')) {
+        const citySection = document.createElement('div');
+        citySection.id = 'savedCitiesSection';
+        citySection.className = 'settings-section';
+        citySection.innerHTML = `
+            <h3>📍 Saved Cities</h3>
+            <div class="saved-cities-info">
+                <p>Click on any city to quickly switch</p>
+                <div class="add-city-form">
+                    <input type="text" id="newCityInput" placeholder="Enter city name">
+                    <button id="addCityBtn" class="add-city-btn">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+                <div id="savedCitiesContainer" class="saved-cities-container"></div>
+            </div>
+        `;
+        settingsSection.parentNode.insertBefore(citySection, settingsSection.nextSibling);
+        
+        document.getElementById('addCityBtn')?.addEventListener('click', addNewCity);
+        document.getElementById('newCityInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addNewCity();
+        });
+    }
+    
+    const citiesContainer = document.getElementById('savedCitiesContainer');
+    if (citiesContainer) {
+        citiesContainer.innerHTML = html;
+    }
+}
+
+// Add new city to saved list
+function addNewCity() {
+    const input = document.getElementById('newCityInput');
+    const city = input.value.trim();
+    
+    if (!city) {
+        showToast('Please enter a city name');
+        return;
+    }
+    
+    if (city.length < 2) {
+        showToast('City name too short');
+        return;
+    }
+    
+    if (state.savedCities.includes(city)) {
+        showToast('City already in your list');
+        input.value = '';
+        return;
+    }
+    
+    state.savedCities.unshift(city);
+    if (state.savedCities.length > 12) {
+        state.savedCities = state.savedCities.slice(0, 12);
+    }
+    
+    saveCities();
+    updateCitiesDropdown();
+    input.value = '';
+    showToast(`✅ ${city} added to saved cities`);
+}
+
+// Remove city from saved list
+function removeCity(city) {
+    state.savedCities = state.savedCities.filter(c => c !== city);
+    saveCities();
+    updateCitiesDropdown();
+    showToast(`❌ ${city} removed from saved cities`);
+}
+
+// Set current city from saved list
+function setCity(city) {
+    state.currentCity = city;
+    document.getElementById('weatherSearch').value = city;
+    getCurrentWeather(true);
+    showToast(`📍 Showing weather for ${city}`);
+    closeMenuFunc();
+    navigateToPage('weather');
+}
+
+// Manual city search
+function searchCityManually() {
+    const input = document.getElementById('weatherSearch');
+    const city = input.value.trim();
+    
+    if (!city) {
+        showToast('Please enter a city name');
+        return;
+    }
+    
+    if (city.length < 2) {
+        showToast('City name too short');
+        return;
+    }
+    
+    state.currentCity = city;
+    
+    // Auto-save to saved cities if not exists
+    if (!state.savedCities.includes(city)) {
+        state.savedCities.unshift(city);
+        if (state.savedCities.length > 12) {
+            state.savedCities = state.savedCities.slice(0, 12);
+        }
+        saveCities();
+        updateCitiesDropdown();
+    }
+    
+    getCurrentWeather(true);
+    showToast(`🔍 Searching weather for ${city}`);
+}
+
+// Toggle between manual and GPS location
+function toggleLocationMode(mode) {
+    state.manualLocation = mode === 'manual';
+    state.useGPS = mode === 'gps';
+    
+    // Update UI
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`${mode}ModeBtn`).classList.add('active');
+    
+    if (mode === 'gps') {
+        getUserLocation();
+    }
+    
+    showToast(`${mode === 'manual' ? '📍 Manual' : '🛰️ GPS'} location mode activated`);
+    savePreferences();
+}
 
 // ==================== REAL DATA FETCHING ====================
 async function fetchRealTimeData() {
     try {
         await Promise.all([
-            getCurrentWeather(true), // Force fresh data
-            getNews(state.currentNewsCategory, true) // Force fresh data
+            getCurrentWeather(true),
+            getNews(state.currentNewsCategory, true)
         ]);
         
         updateAPICounts();
@@ -114,7 +296,7 @@ async function fetchRealTimeData() {
     }
 }
 
-// ==================== WEATHER FUNCTIONS (NO CACHE) ====================
+// ==================== WEATHER FUNCTIONS ====================
 async function getCurrentWeather(forceFresh = false) {
     const weatherElement = document.getElementById('currentWeather');
     const featuredElement = document.getElementById('featuredWeather');
@@ -123,7 +305,6 @@ async function getCurrentWeather(forceFresh = false) {
         showLoading('currentWeather');
         showLoading('featuredWeather');
         
-        // Always fetch fresh data - no cache
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
         
@@ -145,10 +326,7 @@ async function getCurrentWeather(forceFresh = false) {
             displayCurrentWeather(data);
             displayWeatherDetails(data);
             
-            // Fetch forecast
             getForecast(data.coord.lat, data.coord.lon);
-            
-            // Fetch additional data
             getUVIndex(data.coord.lat, data.coord.lon);
             getAirQuality(data.coord.lat, data.coord.lon);
             
@@ -168,10 +346,9 @@ async function getCurrentWeather(forceFresh = false) {
                 setTimeout(() => getCurrentWeather(true), 2000);
             }
         } else {
-            // Try with a different city
-            const fallbackCities = ['London', 'New York', 'Tokyo', 'Paris', 'Sydney'];
-            const currentIndex = fallbackCities.indexOf(state.currentCity);
-            const nextCity = fallbackCities[(currentIndex + 1) % fallbackCities.length];
+            // Try with a different city from saved list
+            const currentIndex = state.savedCities.indexOf(state.currentCity);
+            const nextCity = state.savedCities[(currentIndex + 1) % state.savedCities.length];
             
             if (state.currentCity !== nextCity) {
                 state.currentCity = nextCity;
@@ -298,7 +475,7 @@ async function getForecast(lat, lon) {
 
 function displayForecast(forecastData) {
     let html = '';
-    const dailyForecasts = forecastData.filter((item, index) => index % 8 === 0); // Get one per day
+    const dailyForecasts = forecastData.filter((item, index) => index % 8 === 0);
     
     dailyForecasts.forEach(day => {
         const date = new Date(day.dt * 1000);
@@ -339,16 +516,6 @@ async function getUVIndex(lat, lon) {
         const uvElement = document.getElementById('uvValue');
         if (uvElement) {
             uvElement.textContent = uvValue.toFixed(1);
-            
-            // Add UV info to additional features
-            const uvInfo = `
-                <div class="feature-item" onclick="showUVInfo(${uvValue})">
-                    <i class="fas fa-sun"></i>
-                    <span>UV Index: ${uvValue.toFixed(1)}</span>
-                    <small>${getUVLevel(uvValue)}</small>
-                </div>
-            `;
-            document.getElementById('additionalWeather').innerHTML += uvInfo;
         }
     } catch (error) {
         console.error('UV Index error:', error);
@@ -369,21 +536,24 @@ async function getAirQuality(lat, lon) {
         const components = response.data.list[0].components;
         const aqiText = ['Good', 'Fair', 'Moderate', 'Poor', 'Very Poor'][aqi - 1];
         
-        const airQualityHtml = `
-            <div class="feature-item" onclick="showAirQualityInfo('${aqiText}', ${components.pm2_5})">
-                <i class="fas fa-leaf"></i>
-                <span>Air Quality: ${aqiText}</span>
-                <small>PM2.5: ${components.pm2_5.toFixed(1)}</small>
-            </div>
-        `;
-        
-        document.getElementById('additionalWeather').innerHTML += airQualityHtml;
+        // Add air quality to weather details if not already there
+        if (!document.getElementById('airQualityCard')) {
+            const airQualityHtml = `
+                <div class="detail-card" id="airQualityCard">
+                    <i class="fas fa-leaf"></i>
+                    <span class="detail-label">Air Quality</span>
+                    <span class="detail-value">${aqiText}</span>
+                    <small>PM2.5: ${components.pm2_5.toFixed(1)}</small>
+                </div>
+            `;
+            document.getElementById('weatherDetails').innerHTML += airQualityHtml;
+        }
     } catch (error) {
         console.error('Air quality error:', error);
     }
 }
 
-// ==================== NEWS FUNCTIONS (MULTIPLE APIS, NO CACHE) ====================
+// ==================== NEWS FUNCTIONS ====================
 async function getNews(category = 'general', forceFresh = false) {
     try {
         showLoading('newsGrid');
@@ -392,14 +562,12 @@ async function getNews(category = 'general', forceFresh = false) {
         let articles = [];
         let sources = [];
         
-        // Try multiple news APIs in parallel for reliability
         const [gnewsResult, currentsResult, hackernewsResult] = await Promise.allSettled([
             fetchGNews(category),
             fetchCurrentsAPI(category),
             fetchHackerNews()
         ]);
         
-        // Collect successful results
         if (gnewsResult.status === 'fulfilled' && gnewsResult.value) {
             articles = articles.concat(gnewsResult.value);
             sources.push('GNews');
@@ -418,7 +586,6 @@ async function getNews(category = 'general', forceFresh = false) {
             state.apiStatus.hackernews = true;
         }
         
-        // Remove duplicates by title
         const uniqueArticles = removeDuplicateNews(articles);
         
         if (uniqueArticles.length > 0) {
@@ -426,7 +593,6 @@ async function getNews(category = 'general', forceFresh = false) {
             updateNewsTimestamp();
             document.getElementById('globalNewsCount').querySelector('.stat-value').textContent = sources.length;
         } else {
-            // If all APIs fail, try fallback
             getFallbackNews(category);
         }
         
@@ -618,7 +784,6 @@ async function searchNews(query) {
 }
 
 function getFallbackNews(category) {
-    // This is only used when ALL APIs fail - shows real RSS feeds as fallback
     const fallbackFeeds = {
         general: [
             { title: 'BBC News - World', url: 'http://feeds.bbci.co.uk/news/world/rss.xml' },
@@ -631,8 +796,6 @@ function getFallbackNews(category) {
     };
     
     showToast('Connecting to RSS feeds...');
-    // In a real implementation, you'd parse these RSS feeds
-    // For now, show a message
     document.getElementById('newsGrid').innerHTML = `
         <div class="news-card fallback">
             <div class="news-content">
@@ -670,18 +833,31 @@ function getUserLocation() {
                 });
                 
                 if (response.data && response.data[0]) {
-                    state.currentCity = response.data[0].name;
-                    document.getElementById('weatherSearch').value = state.currentCity;
+                    const detectedCity = response.data[0].name;
+                    state.currentCity = detectedCity;
+                    document.getElementById('weatherSearch').value = detectedCity;
+                    
+                    // Auto-save to saved cities
+                    if (!state.savedCities.includes(detectedCity)) {
+                        state.savedCities.unshift(detectedCity);
+                        if (state.savedCities.length > 12) {
+                            state.savedCities = state.savedCities.slice(0, 12);
+                        }
+                        saveCities();
+                        updateCitiesDropdown();
+                    }
+                    
                     getCurrentWeather(true);
-                    showToast(`Location detected: ${state.currentCity}`);
+                    showToast(`📍 GPS detected: ${detectedCity}`);
                     state.locationEnabled = true;
                 }
             } catch (error) {
-                showToast('Could not get city name');
+                showToast('Could not get city name from GPS');
             }
         },
         (error) => {
-            showToast('Location access denied');
+            showToast('Location access denied. Using manual mode.');
+            toggleLocationMode('manual');
         }
     );
 }
@@ -773,16 +949,13 @@ function displayTelegramUser() {
 
 // ==================== EVENT LISTENERS ====================
 function setupEventListeners() {
-    // Theme toggle
     themeToggle.addEventListener('click', toggleTheme);
     if (darkModeToggle) darkModeToggle.addEventListener('change', toggleTheme);
 
-    // Menu toggles
     menuToggle.addEventListener('click', openMenu);
     closeMenu.addEventListener('click', closeMenuFunc);
     overlay.addEventListener('click', closeMenuFunc);
 
-    // Navigation
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const page = item.dataset.page;
@@ -799,29 +972,40 @@ function setupEventListeners() {
         });
     });
 
-    // Weather search
+    // Weather search with manual control
     const weatherSearch = document.getElementById('weatherSearch');
     const weatherSearchClear = document.getElementById('weatherSearchClear');
+    const searchBtn = document.getElementById('weatherSearchBtn');
     
     weatherSearch.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && weatherSearch.value.trim()) {
-            state.currentCity = weatherSearch.value.trim();
-            getCurrentWeather(true);
-            showToast(`Searching weather for ${state.currentCity}`);
+        if (e.key === 'Enter') {
+            searchCityManually();
         }
     });
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', searchCityManually);
+    }
     
     weatherSearchClear.addEventListener('click', () => {
         weatherSearch.value = '';
         weatherSearch.focus();
     });
 
-    // Location button
-    document.getElementById('getLocationBtn').addEventListener('click', getUserLocation);
+    // Location mode buttons
+    document.getElementById('manualModeBtn')?.addEventListener('click', () => toggleLocationMode('manual'));
+    document.getElementById('gpsModeBtn')?.addEventListener('click', () => toggleLocationMode('gps'));
+
+    // Location button (GPS)
+    document.getElementById('getLocationBtn').addEventListener('click', () => {
+        toggleLocationMode('gps');
+        getUserLocation();
+    });
 
     // News search
     const newsSearch = document.getElementById('newsSearch');
     const newsSearchClear = document.getElementById('newsSearchClear');
+    const newsSearchBtn = document.getElementById('newsSearchBtn');
     
     newsSearch.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && newsSearch.value.trim()) {
@@ -829,12 +1013,19 @@ function setupEventListeners() {
         }
     });
     
+    if (newsSearchBtn) {
+        newsSearchBtn.addEventListener('click', () => {
+            if (newsSearch.value.trim()) {
+                searchNews(newsSearch.value.trim());
+            }
+        });
+    }
+    
     newsSearchClear.addEventListener('click', () => {
         newsSearch.value = '';
         newsSearch.focus();
     });
 
-    // News categories
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
@@ -843,12 +1034,10 @@ function setupEventListeners() {
         });
     });
 
-    // Refresh news
     document.getElementById('refreshNewsBtn').addEventListener('click', () => {
         getNews(state.currentNewsCategory, true);
     });
 
-    // Unit toggle
     document.querySelectorAll('.unit-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
@@ -885,6 +1074,8 @@ function navigateToPage(page) {
         getCurrentWeather(true);
     } else if (page === 'news') {
         getNews(state.currentNewsCategory, true);
+    } else if (page === 'settings') {
+        updateCitiesDropdown();
     }
 }
 
@@ -913,10 +1104,13 @@ function loadPreferences() {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     const savedUnit = localStorage.getItem('tempUnit') || 'celsius';
     const savedNotifications = localStorage.getItem('notifications') === 'true';
+    const savedLocationMode = localStorage.getItem('locationMode') || 'manual';
 
     state.darkMode = savedDarkMode;
     state.currentUnit = savedUnit;
     state.notifications = savedNotifications;
+    state.manualLocation = savedLocationMode === 'manual';
+    state.useGPS = savedLocationMode === 'gps';
 
     if (state.darkMode) {
         document.body.classList.add('dark-mode');
@@ -932,15 +1126,24 @@ function loadPreferences() {
             btn.classList.remove('active');
         }
     });
+    
+    // Set location mode buttons
+    document.getElementById('manualModeBtn')?.classList.toggle('active', state.manualLocation);
+    document.getElementById('gpsModeBtn')?.classList.toggle('active', state.useGPS);
 }
 
 function savePreferences() {
     localStorage.setItem('darkMode', state.darkMode);
     localStorage.setItem('tempUnit', state.currentUnit);
     localStorage.setItem('notifications', state.notifications);
+    localStorage.setItem('locationMode', state.manualLocation ? 'manual' : 'gps');
 }
 
 // ==================== GLOBAL FUNCTIONS ====================
 window.navigateToPage = navigateToPage;
-window.showUVInfo = (uv) => showToast(`UV Index: ${uv} - ${getUVLevel(uv)}`);
-window.showAirQualityInfo = (level, pm) => showToast(`Air Quality: ${level} (PM2.5: ${pm.toFixed(1)})`);
+window.getWeatherDetail = (type) => showToast(`Weather detail: ${type}`);
+window.setCity = setCity;
+window.removeCity = removeCity;
+window.addNewCity = addNewCity;
+window.searchCityManually = searchCityManually;
+window.toggleLocationMode = toggleLocationMode;
