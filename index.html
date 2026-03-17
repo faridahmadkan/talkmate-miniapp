@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TalkMate Pro - Weather & News</title>
+    <title>TalkMate - Weather & News</title>
     
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -18,468 +18,78 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Splash Screen with Animation -->
+        <!-- Splash Screen -->
         <div class="splash-screen" id="splashScreen">
             <div class="splash-content">
                 <div class="splash-icon">
-                    <i class="fas fa-comment-dots"></i>
+                    <i class="fas fa-cloud-sun"></i>
                 </div>
-                <h1 class="splash-title">TalkMate<span class="splash-pro">PRO</span></h1>
-                <p class="splash-subtitle">Real-time Weather & News</p>
-                <div class="loader">
-                    <div class="loader-circle"></div>
-                    <div class="loader-circle"></div>
-                    <div class="loader-circle"></div>
-                </div>
-                <p class="splash-credit">Created by Farid Ahmad Khan</p>
+                <h1 class="splash-title">TalkMate</h1>
+                <p class="splash-subtitle">Weather & News</p>
+                <div class="loader"></div>
             </div>
         </div>
 
         <!-- Main App -->
         <div class="main-app" id="mainApp">
-            <!-- Header with Glassmorphism -->
+            <!-- Header -->
             <header class="header">
                 <div class="header-content">
                     <div class="logo">
-                        <i class="fas fa-comment-dots"></i>
-                        <span>TalkMate<span class="logo-pro">PRO</span></span>
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>TalkMate</span>
                     </div>
                     <div class="header-actions">
                         <button class="theme-toggle" id="themeToggle">
                             <i class="fas fa-moon"></i>
                         </button>
-                        <button class="menu-toggle" id="menuToggle">
-                            <i class="fas fa-bars"></i>
-                        </button>
                     </div>
                 </div>
             </header>
 
-            <!-- Side Menu with User Info -->
-            <div class="side-menu" id="sideMenu">
-                <div class="menu-header">
-                    <div class="menu-logo">
-                        <i class="fas fa-comment-dots"></i>
-                        <span>TalkMate</span>
-                    </div>
-                    <button class="close-menu" id="closeMenu">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="user-info" id="telegramUserInfo">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="user-details">
-                        <p class="user-name">Guest User</p>
-                        <p class="user-id">Loading...</p>
-                    </div>
-                </div>
-                <div class="menu-items">
-                    <a href="#" class="menu-item active" data-page="home">
-                        <i class="fas fa-home"></i>
-                        <span>Home</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="weather">
-                        <i class="fas fa-cloud-sun"></i>
-                        <span>Weather</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="news">
-                        <i class="fas fa-newspaper"></i>
-                        <span>News</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="about">
-                        <i class="fas fa-info-circle"></i>
-                        <span>About</span>
-                    </a>
-                </div>
-                <div class="menu-footer">
-                    <p>Created by <span class="highlight">Farid Ahmad Khan</span></p>
-                    <p>Khan AI Solutions</p>
-                    <div class="menu-social">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-telegram"></i></a>
-                        <a href="#"><i class="fas fa-globe"></i></a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Overlay -->
-            <div class="overlay" id="overlay"></div>
-
             <!-- Main Content -->
-            <main class="main-content" id="mainContent">
-                <!-- Home Page -->
-                <div class="page active" id="homePage">
-                    <div class="welcome-section animate-fade-in">
-                        <h1 id="welcomeMessage">Welcome to TalkMate Pro</h1>
-                        <p>Your real-time weather and news assistant</p>
-                        <div class="live-badge">
-                            <span class="live-dot"></span>
-                            LIVE DATA
+            <main class="main-content">
+                <!-- Weather Section -->
+                <section class="weather-section" id="weatherSection">
+                    <div class="section-header">
+                        <h2>🌤 Weather</h2>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, Tokyo, New York)" value="London">
+                            <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
                         </div>
                     </div>
 
-                    <div class="quick-actions">
-                        <div class="action-card animate-slide-up" style="animation-delay: 0.1s" onclick="navigateToPage('weather')">
-                            <div class="action-icon">
-                                <i class="fas fa-cloud-sun"></i>
-                            </div>
-                            <h3>Weather</h3>
-                            <p>Real-time conditions</p>
-                            <span class="action-arrow"><i class="fas fa-arrow-right"></i></span>
-                        </div>
-                        <div class="action-card animate-slide-up" style="animation-delay: 0.2s" onclick="navigateToPage('news')">
-                            <div class="action-icon">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-                            <h3>News</h3>
-                            <p>Latest headlines</p>
-                            <span class="action-arrow"><i class="fas fa-arrow-right"></i></span>
-                        </div>
+                    <div class="weather-card" id="weatherCard">
+                        <div class="loading">Loading weather data...</div>
                     </div>
+                </section>
 
-                    <div class="featured-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Today's Highlight</h2>
-                            <span class="update-time" id="weatherUpdateTime"></span>
-                        </div>
-                        <div class="featured-card" id="featuredWeather">
-                            <div class="featured-loader">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Fetching live weather data...</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="quick-stats">
-                        <div class="stat-card" id="globalNewsCount">
-                            <div class="stat-value">0</div>
-                            <div class="stat-label">News Sources</div>
-                        </div>
-                        <div class="stat-card" id="weatherCitiesCount">
-                            <div class="stat-value">200K+</div>
-                            <div class="stat-label">Cities</div>
-                        </div>
-                        <div class="stat-card" id="apiStatus">
-                            <div class="stat-value">
-                                <span class="status-dot green"></span>
-                            </div>
-                            <div class="stat-label">APIs Live</div>
-                        </div>
-                    </div>
-                    
-                    <div class="telegram-badge" id="telegramBadge">
-                        <!-- Will show if opened from Telegram -->
-                    </div>
-                </div>
-
-                <!-- Weather Page -->
-                <div class="page" id="weatherPage">
-                    <div class="page-header">
-                        <h2>Weather Forecast</h2>
-                        <div class="location-mode-indicator">
-                            <span id="locationModeText" class="mode-text">
-                                <i class="fas fa-keyboard"></i> Manual Mode
-                            </span>
-                        </div>
-                        <div class="search-container">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="weatherSearch" placeholder="Search city (e.g., London, New York, Tokyo)" autocomplete="off">
-                                <button class="search-clear" id="weatherSearchClear"><i class="fas fa-times"></i></button>
-                            </div>
-                            <button class="search-btn" id="weatherSearchBtn">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                            <button class="location-btn" id="getLocationBtn" title="Use GPS">
-                                <i class="fas fa-location-dot"></i>
-                            </button>
-                        </div>
-                        
-                        <!-- Quick Cities Row -->
-                        <div class="quick-cities-row" id="quickCitiesRow">
-                            <span class="quick-cities-label">Saved:</span>
-                            <div class="quick-cities" id="quickCities"></div>
-                        </div>
-                    </div>
-
-                    <div class="weather-content">
-                        <div class="current-weather-card animate-fade-in" id="currentWeather">
-                            <div class="weather-loader">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Fetching live weather data...</p>
-                            </div>
-                        </div>
-
-                        <div class="weather-details-grid" id="weatherDetails"></div>
-
-                        <div class="forecast-section">
-                            <div class="section-header">
-                                <h3>5-Day Forecast</h3>
-                                <span class="update-time" id="forecastUpdateTime"></span>
-                            </div>
-                            <div class="forecast-grid" id="forecastGrid"></div>
-                        </div>
-
-                        <div class="weather-features">
-                            <h3>More Details</h3>
-                            <div class="features-grid" id="additionalWeather">
-                                <!-- Will be populated -->
-                            </div>
-                        </div>
-                        
-                        <div class="weather-attribution">
-                            Data provided by OpenWeatherMap
-                        </div>
-                    </div>
-                </div>
-
-                <!-- News Page -->
-                <div class="page" id="newsPage">
-                    <div class="page-header">
-                        <h2>Latest News</h2>
-                        <div class="news-categories-wrapper">
-                            <div class="news-categories" id="newsCategories">
-                                <button class="category-btn active" data-category="general">🔥 Top</button>
-                                <button class="category-btn" data-category="technology">💻 Tech</button>
-                                <button class="category-btn" data-category="business">📈 Business</button>
-                                <button class="category-btn" data-category="sports">⚽ Sports</button>
-                                <button class="category-btn" data-category="entertainment">🎬 Entertainment</button>
-                                <button class="category-btn" data-category="science">🔬 Science</button>
-                                <button class="category-btn" data-category="health">🏥 Health</button>
-                                <button class="category-btn" data-category="world">🌍 World</button>
-                            </div>
-                        </div>
-                        <div class="search-container">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" id="newsSearch" placeholder="Search news..." autocomplete="off">
-                                <button class="search-clear" id="newsSearchClear"><i class="fas fa-times"></i></button>
-                            </div>
-                            <button class="search-btn" id="newsSearchBtn">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <button class="refresh-btn" id="refreshNewsBtn">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
+                <!-- News Section -->
+                <section class="news-section" id="newsSection">
+                    <div class="section-header">
+                        <h2>📰 News</h2>
+                        <div class="category-tabs">
+                            <button class="category-btn active" data-category="general">Top</button>
+                            <button class="category-btn" data-category="technology">Tech</button>
+                            <button class="category-btn" data-category="business">Business</button>
+                            <button class="category-btn" data-category="sports">Sports</button>
+                            <button class="category-btn" data-category="entertainment">Entertainment</button>
                         </div>
                     </div>
 
                     <div class="news-grid" id="newsGrid">
-                        <div class="news-loader">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <p>Fetching latest news from multiple sources...</p>
-                        </div>
+                        <div class="loading">Loading news...</div>
                     </div>
-                    
-                    <div class="news-footer" id="newsFooter">
-                        <span class="news-source-info">Sources: GNews, CurrentsAPI, HackerNews, Reddit</span>
-                        <span class="news-update-time" id="newsUpdateTime"></span>
-                    </div>
-                </div>
-
-                <!-- Settings Page -->
-                <div class="page" id="settingsPage">
-                    <h2>Settings</h2>
-                    
-                    <!-- Location Settings Section -->
-                    <div class="settings-section">
-                        <h3>📍 Location Settings</h3>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <i class="fas fa-location-dot"></i>
-                                <div>
-                                    <span>Location Mode</span>
-                                    <small>Choose how to set your location</small>
-                                </div>
-                            </div>
-                            <div class="location-mode-toggle">
-                                <button class="mode-btn active" id="manualModeBtn" data-mode="manual">
-                                    <i class="fas fa-keyboard"></i> Manual
-                                </button>
-                                <button class="mode-btn" id="gpsModeBtn" data-mode="gps">
-                                    <i class="fas fa-satellite"></i> GPS
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="saved-cities-section">
-                            <div class="saved-cities-header">
-                                <h4>Saved Cities</h4>
-                                <span class="city-count" id="cityCount">0/12</span>
-                            </div>
-                            <p class="saved-cities-info">Click on any city to quickly switch. Add new cities below.</p>
-                            
-                            <div class="add-city-form">
-                                <input type="text" id="newCityInput" placeholder="Enter city name (e.g., Paris, Dubai, Singapore)">
-                                <button class="add-city-btn" id="addCityBtn">
-                                    <i class="fas fa-plus"></i> Add City
-                                </button>
-                            </div>
-                            
-                            <div class="saved-cities-grid" id="savedCitiesContainer">
-                                <!-- Cities will be populated here -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Appearance Settings -->
-                    <div class="settings-section">
-                        <h3>🎨 Appearance</h3>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <i class="fas fa-palette"></i>
-                                <div>
-                                    <span>Dark Mode</span>
-                                    <small>Switch between light and dark theme</small>
-                                </div>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="darkModeToggle">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <i class="fas fa-globe"></i>
-                                <div>
-                                    <span>Temperature Unit</span>
-                                    <small>Choose Celsius or Fahrenheit</small>
-                                </div>
-                            </div>
-                            <div class="unit-toggle">
-                                <button class="unit-btn active" data-unit="celsius">°C</button>
-                                <button class="unit-btn" data-unit="fahrenheit">°F</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Notification Settings -->
-                    <div class="settings-section">
-                        <h3>🔔 Notifications</h3>
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <i class="fas fa-bell"></i>
-                                <div>
-                                    <span>Weather Alerts</span>
-                                    <small>Get notifications for severe weather</small>
-                                </div>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="notificationsToggle">
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- API Status -->
-                    <div class="settings-section">
-                        <h3>📡 API Status</h3>
-                        <div class="api-status-grid" id="apiStatusGrid">
-                            <div class="api-status-item">
-                                <span><i class="fas fa-cloud-sun"></i> OpenWeatherMap</span>
-                                <span class="status-online">● Online</span>
-                            </div>
-                            <div class="api-status-item">
-                                <span><i class="fas fa-newspaper"></i> GNews</span>
-                                <span class="status-online">● Online</span>
-                            </div>
-                            <div class="api-status-item">
-                                <span><i class="fas fa-rss"></i> CurrentsAPI</span>
-                                <span class="status-online">● Online</span>
-                            </div>
-                            <div class="api-status-item">
-                                <span><i class="fab fa-hacker-news"></i> HackerNews</span>
-                                <span class="status-online">● Online</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- About Page -->
-                <div class="page" id="aboutPage">
-                    <div class="about-card">
-                        <div class="about-icon">
-                            <i class="fas fa-comment-dots"></i>
-                        </div>
-                        <h2>TalkMate Pro</h2>
-                        <p class="version">Version 2.0.0</p>
-                        
-                        <div class="creator-info">
-                            <h3>Created by</h3>
-                            <p class="creator-name">Farid Ahmad Khan</p>
-                            <p class="developer">Khan AI Solutions</p>
-                        </div>
-
-                        <div class="features-list">
-                            <h3>Real-time Features</h3>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> Live Weather Data (No Cache)</li>
-                                <li><i class="fas fa-check-circle"></i> 5-Day Forecast</li>
-                                <li><i class="fas fa-check-circle"></i> UV Index & Air Quality</li>
-                                <li><i class="fas fa-check-circle"></i> News from 4+ Sources</li>
-                                <li><i class="fas fa-check-circle"></i> 7 News Categories</li>
-                                <li><i class="fas fa-check-circle"></i> Search Functionality</li>
-                                <li><i class="fas fa-check-circle"></i> Manual & GPS Location</li>
-                                <li><i class="fas fa-check-circle"></i> Saved Cities</li>
-                                <li><i class="fas fa-check-circle"></i> Dark/Light Theme</li>
-                                <li><i class="fas fa-check-circle"></i> Telegram Integration</li>
-                            </ul>
-                        </div>
-
-                        <div class="tech-stack">
-                            <h3>Powered By</h3>
-                            <div class="tech-icons">
-                                <span class="tech-badge">OpenWeatherMap</span>
-                                <span class="tech-badge">GNews</span>
-                                <span class="tech-badge">CurrentsAPI</span>
-                                <span class="tech-badge">HackerNews</span>
-                            </div>
-                        </div>
-
-                        <div class="contact-info">
-                            <a href="#" class="contact-link"><i class="fab fa-github"></i></a>
-                            <a href="#" class="contact-link"><i class="fab fa-telegram"></i></a>
-                            <a href="#" class="contact-link"><i class="fas fa-envelope"></i></a>
-                            <a href="#" class="contact-link"><i class="fas fa-globe"></i></a>
-                        </div>
-                        
-                        <button class="telegram-close-btn" id="closeWebApp" style="display: none;">
-                            <i class="fab fa-telegram"></i> Close in Telegram
-                        </button>
-                    </div>
-                </div>
+                </section>
             </main>
 
-            <!-- Bottom Navigation -->
-            <nav class="bottom-nav">
-                <button class="nav-item active" data-page="home">
-                    <i class="fas fa-home"></i>
-                    <span>Home</span>
-                </button>
-                <button class="nav-item" data-page="weather">
-                    <i class="fas fa-cloud-sun"></i>
-                    <span>Weather</span>
-                </button>
-                <button class="nav-item" data-page="news">
-                    <i class="fas fa-newspaper"></i>
-                    <span>News</span>
-                </button>
-                <button class="nav-item" data-page="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </button>
-            </nav>
+            <!-- Footer -->
+            <footer class="footer">
+                <p>Created by <strong>Farid Ahmad Khan</strong> | Khan AI Solutions</p>
+            </footer>
         </div>
     </div>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
 
     <script src="script.js"></script>
 </body>
