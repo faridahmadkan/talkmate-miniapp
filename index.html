@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TalkMate - Weather & News</title>
+    
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Splash Screen -->
+        <div class="splash-screen" id="splashScreen">
+            <div class="splash-content">
+                <div class="splash-icon">
+                    <i class="fas fa-comment-dots"></i>
+                </div>
+                <h1 class="splash-title">TalkMate</h1>
+                <p class="splash-subtitle">Weather & News</p>
+                <div class="loader"></div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div class="main-app" id="mainApp">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="logo">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>TalkMate</span>
+                    </div>
+                    <div class="header-actions">
+                        <button class="theme-toggle" id="themeToggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Side Menu -->
+            <div class="side-menu" id="sideMenu">
+                <div class="menu-header">
+                    <div class="menu-logo">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>TalkMate</span>
+                    </div>
+                    <button class="close-menu" id="closeMenu">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="user-info" id="telegramUserInfo">
+                    <!-- Will be populated by Telegram -->
+                </div>
+                <div class="menu-items">
+                    <a href="#" class="menu-item active" data-page="home">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="weather">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>Weather</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="news">
+                        <i class="fas fa-newspaper"></i>
+                        <span>News</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="about">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About</span>
+                    </a>
+                </div>
+                <div class="menu-footer">
+                    <p>Created by Farid Ahmad Khan</p>
+                    <p>Khan AI Solutions</p>
+                </div>
+            </div>
+
+            <!-- Overlay -->
+            <div class="overlay" id="overlay"></div>
+
+            <!-- Main Content -->
+            <main class="main-content" id="mainContent">
+                <!-- Home Page -->
+                <div class="page active" id="homePage">
+                    <div class="welcome-section animate-fade-in">
+                        <h1 id="welcomeMessage">Welcome to TalkMate</h1>
+                        <p>Your personal weather and news assistant</p>
+                    </div>
+
+                    <div class="quick-actions">
+                        <div class="action-card animate-slide-up" style="animation-delay: 0.1s" onclick="navigateToPage('weather')">
+                            <i class="fas fa-cloud-sun"></i>
+                            <h3>Weather</h3>
+                            <p>Check current weather</p>
+                        </div>
+                        <div class="action-card animate-slide-up" style="animation-delay: 0.2s" onclick="navigateToPage('news')">
+                            <i class="fas fa-newspaper"></i>
+                            <h3>News</h3>
+                            <p>Latest headlines</p>
+                        </div>
+                    </div>
+
+                    <div class="featured-section">
+                        <h2 class="section-title">Today's Highlight</h2>
+                        <div class="featured-card" id="featuredWeather">
+                            <div class="featured-loader">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="telegram-badge" id="telegramBadge">
+                        <!-- Will show if opened from Telegram -->
+                    </div>
+                </div>
+
+                <!-- Weather Page -->
+                <div class="page" id="weatherPage">
+                    <div class="page-header">
+                        <h2>Weather Forecast</h2>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="weatherSearch" placeholder="Search city..." autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="weather-content">
+                        <div class="current-weather-card animate-fade-in" id="currentWeather">
+                            <div class="weather-loader">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Fetching weather data...</p>
+                            </div>
+                        </div>
+
+                        <div class="weather-details-grid" id="weatherDetails"></div>
+
+                        <div class="forecast-section">
+                            <h3>5-Day Forecast</h3>
+                            <div class="forecast-grid" id="forecastGrid"></div>
+                        </div>
+
+                        <div class="weather-features">
+                            <h3>More Features</h3>
+                            <div class="features-grid">
+                                <div class="feature-item" onclick="getWeatherDetail('temperature')">
+                                    <i class="fas fa-thermometer-half"></i>
+                                    <span>Temperature</span>
+                                </div>
+                                <div class="feature-item" onclick="getWeatherDetail('humidity')">
+                                    <i class="fas fa-tint"></i>
+                                    <span>Humidity</span>
+                                </div>
+                                <div class="feature-item" onclick="getWeatherDetail('wind')">
+                                    <i class="fas fa-wind"></i>
+                                    <span>Wind</span>
+                                </div>
+                                <div class="feature-item" onclick="getWeatherDetail('pressure')">
+                                    <i class="fas fa-compress-alt"></i>
+                                    <span>Pressure</span>
+                                </div>
+                                <div class="feature-item" onclick="getWeatherDetail('uv')">
+                                    <i class="fas fa-sun"></i>
+                                    <span>UV Index</span>
+                                </div>
+                                <div class="feature-item" onclick="getWeatherDetail('air')">
+                                    <i class="fas fa-leaf"></i>
+                                    <span>Air Quality</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News Page -->
+                <div class="page" id="newsPage">
+                    <div class="page-header">
+                        <h2>Latest News</h2>
+                        <div class="news-categories">
+                            <button class="category-btn active" data-category="general">Top</button>
+                            <button class="category-btn" data-category="technology">Tech</button>
+                            <button class="category-btn" data-category="business">Business</button>
+                            <button class="category-btn" data-category="sports">Sports</button>
+                            <button class="category-btn" data-category="entertainment">Entertainment</button>
+                            <button class="category-btn" data-category="science">Science</button>
+                            <button class="category-btn" data-category="health">Health</button>
+                        </div>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="newsSearch" placeholder="Search news..." autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="news-grid" id="newsGrid">
+                        <div class="news-loader">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Fetching latest news...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div class="page" id="settingsPage">
+                    <h2>Settings</h2>
+                    <div class="settings-section">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-palette"></i>
+                                <span>Dark Mode</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeToggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-bell"></i>
+                                <span>Notifications</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="notificationsToggle">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-globe"></i>
+                                <span>Temperature Unit</span>
+                            </div>
+                            <select id="tempUnit">
+                                <option value="celsius">Celsius (°C)</option>
+                                <option value="fahrenheit">Fahrenheit (°F)</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-telegram"></i>
+                                <span>Telegram Integration</span>
+                            </div>
+                            <span class="telegram-status" id="telegramStatus">Connected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- About Page -->
+                <div class="page" id="aboutPage">
+                    <div class="about-card">
+                        <div class="about-icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <h2>TalkMate Mini App</h2>
+                        <p class="version">Version 1.0.0</p>
+                        
+                        <div class="creator-info">
+                            <h3>Created by</h3>
+                            <p class="creator-name">Farid Ahmad Khan</p>
+                            <p class="developer">Khan AI Solutions</p>
+                        </div>
+
+                        <div class="features-list">
+                            <h3>Features</h3>
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> Current Weather</li>
+                                <li><i class="fas fa-check-circle"></i> 5-Day Forecast</li>
+                                <li><i class="fas fa-check-circle"></i> Weather Details</li>
+                                <li><i class="fas fa-check-circle"></i> Live News Updates</li>
+                                <li><i class="fas fa-check-circle"></i> Multiple Categories</li>
+                                <li><i class="fas fa-check-circle"></i> Dark/Light Theme</li>
+                                <li><i class="fas fa-check-circle"></i> Telegram Integration</li>
+                            </ul>
+                        </div>
+
+                        <div class="contact-info">
+                            <a href="#" class="contact-link"><i class="fab fa-github"></i></a>
+                            <a href="#" class="contact-link"><i class="fab fa-telegram"></i></a>
+                            <a href="#" class="contact-link"><i class="fas fa-envelope"></i></a>
+                        </div>
+                        
+                        <button class="telegram-close-btn" id="closeWebApp" style="display: none;">Close</button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" data-page="weather">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span>Weather</span>
+                </button>
+                <button class="nav-item" data-page="news">
+                    <i class="fas fa-newspaper"></i>
+                    <span>News</span>
+                </button>
+                <button class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
