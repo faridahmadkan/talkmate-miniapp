@@ -1,54 +1,134 @@
-# TalkMate Mini App
+# TalkMate Universe - World Class Telegram Mini App
 
-A modern, animated mini web app for Telegram with weather and news features.
+A comprehensive, feature-rich Telegram Mini App with multiple APIs, games, and utilities.
 
-## Features
+## 🌟 Features
 
-### 🌤 Weather
+### 📱 Core Features
+- **Telegram Integration** - Full WebApp API support
+- **Dark/Light Theme** - Smooth toggle with persistence
+- **User Profile** - Points, levels, achievements
+- **Global Search** - Search across all content
+- **Notifications** - Toast and achievement popups
+- **Activity Feed** - Track user actions
+
+### 🌤 Weather Hub
 - Current weather conditions
 - 5-day forecast
-- Temperature, humidity, wind speed
-- Pressure, visibility, cloud cover
-- UV Index
-- Air Quality
+- Air quality index
+- UV index
+- Weather maps
 - City search
-- Celsius/Fahrenheit toggle
+- Detailed metrics
 
-### 📰 News
-- Top headlines
-- Multiple categories (Tech, Business, Sports, etc.)
-- News search
-- Working links to full articles
-- Multiple news sources (GNews, Currents API)
+### 📰 News World
+- Multiple categories
+- Real-time news from GNews API
+- Article previews
+- Working links
+- Category filtering
 
-### 🎨 Design
-- Modern animated UI
-- Smooth transitions
-- Dark/Light theme
-- Responsive design
-- Telegram theme integration
+### 🎮 Game Zone (8 Games)
+- **Snake Game** - Classic snake with scoring
+- **Tetris** - Full Tetris implementation
+- **Memory Match** - Card matching game
+- **2048 Puzzle** - Number merging puzzle
+- **Tic Tac Toe** - Two player classic
+- **Rock Paper Scissors** - VS computer
+- **Hangman** - Word guessing game
+- **Trivia Quiz** - Multiple choice questions
 
-### 🔧 Technical
-- Pure HTML/CSS/JavaScript
-- No build tools required
-- Works in Telegram Web App
-- Local storage for preferences
-- Axios for API calls
+### 💡 Fun Facts
+- Random interesting facts
+- Category-based facts
+- Fact history
+- Multiple categories (Science, History, Animals, Space, Technology)
 
-## Setup
+### 😂 Jokes Factory
+- Multiple joke types
+- Punchline reveal
+- Favorite jokes
+- Joke statistics
+- Categories (Programming, Dad jokes, Puns, Knock-knock)
 
-1. Clone this repository
-2. Open `index.html` in a browser
-3. Or deploy to GitHub Pages
+### 💬 Inspirational Quotes
+- Random quotes
+- Category-based quotes
+- Share functionality
+- Save favorites
+- Quote of the day
 
-## Deploy to GitHub Pages
+### 💰 Crypto Prices
+- Live prices from CoinGecko
+- Multiple cryptocurrencies
+- Price charts
+- Currency converter
+- 24h change
 
-1. Create a new repository on GitHub
-2. Push these files to the repository
-3. Go to Settings > Pages
-4. Select main branch as source
-5. Your app will be available at `https://[username].github.io/[repo-name]`
+### 🎬 Movie Database
+- Popular movies
+- Top rated
+- Upcoming releases
+- Search functionality
+- Movie details
 
-## Connect to Telegram Bot
+### 📚 Dictionary
+- Word definitions
+- Pronunciation
+- Examples
+- Parts of speech
 
-Add this URL to your bot's menu button:
+### 🌐 Translator
+- 15+ languages
+- Swap languages
+- Text translation
+- Multiple language pairs
+
+### 📱 Utilities
+- **QR Code Generator** - Create QR codes
+- **Password Generator** - Secure passwords
+- **Strength meter**
+- **Copy to clipboard**
+
+### ⚙️ Settings
+- Theme toggle
+- Animations
+- Font size
+- Notifications
+- Language selection
+- Clear cache
+- Export data
+- Storage info
+
+## 🚀 APIs Used
+
+- **Weather**: Open-Meteo API (Free)
+- **Geocoding**: Open-Meteo Geocoding (Free)
+- **News**: GNews API (Free tier)
+- **Crypto**: CoinGecko API (Free)
+- **Quotes**: Quotable API (Free)
+- **Jokes**: JokeAPI (Free)
+- **Facts**: Useless Facts API (Free)
+- **Movies**: TMDB API (Free tier)
+- **Trivia**: Open Trivia DB (Free)
+- **Dictionary**: Free Dictionary API (Free)
+- **Translation**: MyMemory API (Free)
+- **QR Code**: QR Server API (Free)
+- **IP Geolocation**: ipapi.co (Free)
+
+## 🎨 Design Features
+
+- **Glass morphism** - Modern UI design
+- **Smooth animations** - CSS transitions
+- **Responsive** - Mobile-first design
+- **Particle effects** - Dynamic backgrounds
+- **Glitch text** - Cyberpunk style
+- **Gradient accents** - Vibrant colors
+- **Dark/Light themes** - Eye comfort
+- **Custom scrollbars** - Polished look
+
+## 📦 Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/faridahmadkan/talkmate-miniapp.git

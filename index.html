@@ -3,94 +3,1042 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TalkMate - Weather & News</title>
+    <title>TalkMate Universe - World Class Mini App</title>
     
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Axios for API calls -->
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
 </head>
 <body>
     <div class="app-container">
         <!-- Splash Screen -->
         <div class="splash-screen" id="splashScreen">
+            <div id="particles-js"></div>
             <div class="splash-content">
-                <div class="splash-icon">
-                    <i class="fas fa-cloud-sun"></i>
+                <div class="splash-logo">
+                    <i class="fas fa-rocket"></i>
                 </div>
-                <h1 class="splash-title">TalkMate</h1>
-                <p class="splash-subtitle">Weather & News</p>
-                <div class="loader"></div>
+                <h1 class="splash-title">TalkMate <span>UNIVERSE</span></h1>
+                <p class="splash-subtitle">Loading cosmic experience...</p>
+                <div class="loader">
+                    <div class="loader-bar"></div>
+                </div>
+                <div class="loading-tip" id="loadingTip">Initializing galaxies...</div>
+                <p class="splash-credit">Created by <span>Farid Ahmad Khan</span></p>
             </div>
         </div>
 
         <!-- Main App -->
         <div class="main-app" id="mainApp">
             <!-- Header -->
-            <header class="header">
+            <header class="header glass" id="header">
                 <div class="header-content">
+                    <button class="menu-btn" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
                     <div class="logo">
-                        <i class="fas fa-cloud-sun"></i>
-                        <span>TalkMate</span>
+                        <i class="fas fa-rocket"></i>
+                        <span>TalkMate<span>UNIVERSE</span></span>
                     </div>
+                    
                     <div class="header-actions">
                         <button class="theme-toggle" id="themeToggle">
                             <i class="fas fa-moon"></i>
                         </button>
+                        <div class="notification-bell" id="notificationBell">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge" id="notificationCount">3</span>
+                        </div>
                     </div>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="globalSearch" placeholder="Search news, facts, jokes...">
+                    <div class="search-results" id="searchResults"></div>
                 </div>
             </header>
 
-            <!-- Main Content -->
-            <main class="main-content">
-                <!-- Weather Section -->
-                <section class="weather-section" id="weatherSection">
-                    <div class="section-header">
-                        <h2>🌤 Weather</h2>
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="cityInput" placeholder="Enter city name (e.g., London, Tokyo, New York)" value="London">
-                            <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+            <!-- Side Menu -->
+            <div class="side-menu" id="sideMenu">
+                <div class="menu-header">
+                    <div class="menu-logo">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <button class="close-menu" id="closeMenu">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="user-profile" id="userProfileSection">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <img src="https://ui-avatars.com/api/?name=Explorer&background=6366f1&color=fff&size=128" alt="User">
+                        <div class="avatar-glow"></div>
+                    </div>
+                    <h3 id="profileName">Explorer</h3>
+                    <p id="profileStatus">Online • Level <span id="userLevel">5</span></p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="userPoints">1250</span>
+                            <span class="stat-label">Points</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="userAchievements">8</span>
+                            <span class="stat-label">Achievements</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="userStreak">7</span>
+                            <span class="stat-label">Streak</span>
                         </div>
                     </div>
-
-                    <div class="weather-card" id="weatherCard">
-                        <div class="loading">Loading weather data...</div>
+                </div>
+                
+                <nav class="menu-nav">
+                    <a href="#" class="menu-item active" data-page="dashboard">
+                        <i class="fas fa-rocket"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="weather">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>Weather Hub</span>
+                        <span class="badge">LIVE</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="news">
+                        <i class="fas fa-newspaper"></i>
+                        <span>News World</span>
+                        <span class="badge">24/7</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="games">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Game Zone</span>
+                        <span class="badge">8 GAMES</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="facts">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Fun Facts</span>
+                        <span class="badge">RANDOM</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="jokes">
+                        <i class="fas fa-laugh"></i>
+                        <span>Jokes Factory</span>
+                        <span class="badge">😂</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="quotes">
+                        <i class="fas fa-quote-right"></i>
+                        <span>Inspirational Quotes</span>
+                        <span class="badge">✨</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="crypto">
+                        <i class="fab fa-bitcoin"></i>
+                        <span>Crypto Prices</span>
+                        <span class="badge">LIVE</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="movies">
+                        <i class="fas fa-film"></i>
+                        <span>Movie Database</span>
+                        <span class="badge">TMDB</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="trivia">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Trivia Quiz</span>
+                        <span class="badge">FUN</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="dictionary">
+                        <i class="fas fa-book"></i>
+                        <span>Dictionary</span>
+                        <span class="badge">WORDS</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="translate">
+                        <i class="fas fa-language"></i>
+                        <span>Translator</span>
+                        <span class="badge">100+</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="qr">
+                        <i class="fas fa-qrcode"></i>
+                        <span>QR Generator</span>
+                        <span class="badge">TOOL</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="password">
+                        <i class="fas fa-lock"></i>
+                        <span>Password Generator</span>
+                        <span class="badge">SECURE</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                
+                <div class="menu-footer">
+                    <div class="streak-progress">
+                        <div class="progress-info">
+                            <span>Daily Goal</span>
+                            <span>70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
                     </div>
-                </section>
+                    <p class="copyright">© 2024 Farid Ahmad Khan</p>
+                </div>
+            </div>
+            
+            <div class="overlay" id="overlay"></div>
 
-                <!-- News Section -->
-                <section class="news-section" id="newsSection">
-                    <div class="section-header">
-                        <h2>📰 News</h2>
-                        <div class="category-tabs">
-                            <button class="category-btn active" data-category="general">Top</button>
+            <!-- Main Content -->
+            <main class="main-content" id="mainContent">
+                <!-- Dashboard Page -->
+                <div class="page active" id="dashboardPage">
+                    <div class="welcome-section">
+                        <h1 class="glitch-text" data-text="Welcome Back, Explorer!">Welcome Back, Explorer!</h1>
+                        <p id="currentDateTime"></p>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card glass" onclick="navigateTo('weather')">
+                            <div class="stat-icon">
+                                <i class="fas fa-temperature-high"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Weather</h3>
+                                <p id="quickWeather">Loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass" onclick="navigateTo('news')">
+                            <div class="stat-icon">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Top News</h3>
+                                <p id="quickNews">Loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass" onclick="navigateTo('crypto')">
+                            <div class="stat-icon">
+                                <i class="fab fa-bitcoin"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Bitcoin</h3>
+                                <p id="quickBtc">Loading...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card glass" onclick="navigateTo('games')">
+                            <div class="stat-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Games</h3>
+                                <p>8 Available</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Daily Inspiration -->
+                    <div class="daily-card glass">
+                        <div class="daily-header">
+                            <i class="fas fa-quote-left"></i>
+                            <h2>Daily Inspiration</h2>
+                        </div>
+                        <div id="dailyQuote" class="daily-quote">Loading...</div>
+                        <div id="dailyAuthor" class="daily-author"></div>
+                    </div>
+                    
+                    <!-- Fun Fact of the Day -->
+                    <div class="daily-card glass">
+                        <div class="daily-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <h2>Fun Fact of the Day</h2>
+                        </div>
+                        <div id="dailyFact" class="daily-fact">Loading...</div>
+                    </div>
+                    
+                    <!-- Joke of the Day -->
+                    <div class="daily-card glass">
+                        <div class="daily-header">
+                            <i class="fas fa-laugh"></i>
+                            <h2>Joke of the Day</h2>
+                        </div>
+                        <div id="dailyJoke" class="daily-joke">Loading...</div>
+                    </div>
+                    
+                    <!-- Featured Games -->
+                    <h2 class="section-title">Featured Games</h2>
+                    <div class="featured-games">
+                        <div class="game-card-small" onclick="navigateTo('games', 'snake')">
+                            <i class="fas fa-snake"></i>
+                            <span>Snake</span>
+                        </div>
+                        <div class="game-card-small" onclick="navigateTo('games', 'tetris')">
+                            <i class="fas fa-cubes"></i>
+                            <span>Tetris</span>
+                        </div>
+                        <div class="game-card-small" onclick="navigateTo('games', 'memory')">
+                            <i class="fas fa-brain"></i>
+                            <span>Memory</span>
+                        </div>
+                        <div class="game-card-small" onclick="navigateTo('games', '2048')">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <span>2048</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="activity-feed glass">
+                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                        <div id="activityList">
+                            <div class="activity-item">
+                                <i class="fas fa-check-circle" style="color: #22c55e;"></i>
+                                <span>Checked weather in Kabul</span>
+                                <small>2 min ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weather Page -->
+                <div class="page" id="weatherPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-cloud-sun"></i> Weather Hub</h2>
+                        <div class="search-box">
+                            <input type="text" id="weatherSearch" placeholder="Enter city name..." value="Kabul">
+                            <button id="weatherSearchBtn"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-grid">
+                        <div class="current-weather glass" id="currentWeather">
+                            <div class="weather-loading">Loading weather data...</div>
+                        </div>
+                        
+                        <div class="weather-details glass" id="weatherDetails">
+                            <div class="loading">Loading details...</div>
+                        </div>
+                        
+                        <div class="forecast-card glass" id="forecast">
+                            <h3>5-Day Forecast</h3>
+                            <div id="forecastList" class="forecast-list">
+                                <div class="loading">Loading forecast...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="air-quality glass" id="airQuality">
+                            <h3>Air Quality</h3>
+                            <div id="airQualityData" class="loading">Loading...</div>
+                        </div>
+                        
+                        <div class="uv-index glass" id="uvIndex">
+                            <h3>UV Index</h3>
+                            <div id="uvData" class="loading">Loading...</div>
+                        </div>
+                        
+                        <div class="weather-map glass" id="weatherMap">
+                            <h3>Weather Map</h3>
+                            <canvas id="mapCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- News Page -->
+                <div class="page" id="newsPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-newspaper"></i> News World</h2>
+                        <div class="news-categories">
+                            <button class="category-btn active" data-category="general">General</button>
                             <button class="category-btn" data-category="technology">Tech</button>
                             <button class="category-btn" data-category="business">Business</button>
                             <button class="category-btn" data-category="sports">Sports</button>
                             <button class="category-btn" data-category="entertainment">Entertainment</button>
+                            <button class="category-btn" data-category="science">Science</button>
+                            <button class="category-btn" data-category="health">Health</button>
                         </div>
                     </div>
-
+                    
                     <div class="news-grid" id="newsGrid">
                         <div class="loading">Loading news...</div>
                     </div>
-                </section>
+                </div>
+                
+                <!-- Games Page -->
+                <div class="page" id="gamesPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-gamepad"></i> Game Zone</h2>
+                        <div class="game-filters">
+                            <button class="filter-btn active" data-game-filter="all">All</button>
+                            <button class="filter-btn" data-game-filter="snake">Snake</button>
+                            <button class="filter-btn" data-game-filter="tetris">Tetris</button>
+                            <button class="filter-btn" data-game-filter="memory">Memory</button>
+                        </div>
+                    </div>
+                    
+                    <div class="games-grid" id="gamesGrid">
+                        <!-- Snake Game -->
+                        <div class="game-card glass" data-game-type="snake">
+                            <div class="game-header">
+                                <h3><i class="fas fa-snake"></i> Snake Game</h3>
+                                <span class="game-badge">CLASSIC</span>
+                            </div>
+                            <div class="game-container">
+                                <canvas id="snakeCanvas" width="400" height="400"></canvas>
+                                <div class="game-overlay" id="snakeOverlay">
+                                    <h3>Snake Game</h3>
+                                    <p>Use arrow keys to control the snake</p>
+                                    <button class="start-game-btn" onclick="startSnake()">Start Game</button>
+                                </div>
+                            </div>
+                            <div class="game-stats">
+                                <span>Score: <span id="snakeScore">0</span></span>
+                                <span>High Score: <span id="snakeHighScore">0</span></span>
+                            </div>
+                            <div class="game-controls">
+                                <button onclick="controlSnake('up')"><i class="fas fa-arrow-up"></i></button>
+                                <div>
+                                    <button onclick="controlSnake('left')"><i class="fas fa-arrow-left"></i></button>
+                                    <button onclick="controlSnake('down')"><i class="fas fa-arrow-down"></i></button>
+                                    <button onclick="controlSnake('right')"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                                <button onclick="resetSnake()"><i class="fas fa-redo-alt"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tetris Game -->
+                        <div class="game-card glass" data-game-type="tetris">
+                            <div class="game-header">
+                                <h3><i class="fas fa-cubes"></i> Tetris</h3>
+                                <span class="game-badge">CLASSIC</span>
+                            </div>
+                            <div class="game-container tetris-container">
+                                <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+                                <canvas id="tetrisNextCanvas" width="120" height="120"></canvas>
+                                <div class="game-overlay" id="tetrisOverlay">
+                                    <h3>Tetris</h3>
+                                    <p>Arrange falling blocks</p>
+                                    <button class="start-game-btn" onclick="startTetris()">Start Game</button>
+                                </div>
+                            </div>
+                            <div class="game-stats">
+                                <span>Score: <span id="tetrisScore">0</span></span>
+                                <span>Lines: <span id="tetrisLines">0</span></span>
+                                <span>Level: <span id="tetrisLevel">1</span></span>
+                            </div>
+                            <div class="game-controls">
+                                <button onclick="tetrisMove('left')"><i class="fas fa-arrow-left"></i></button>
+                                <button onclick="tetrisRotate()"><i class="fas fa-undo-alt"></i></button>
+                                <button onclick="tetrisMove('right')"><i class="fas fa-arrow-right"></i></button>
+                                <button onclick="tetrisMove('down')"><i class="fas fa-arrow-down"></i></button>
+                                <button onclick="tetrisDrop()"><i class="fas fa-bolt"></i></button>
+                                <button onclick="resetTetris()"><i class="fas fa-redo-alt"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Memory Game -->
+                        <div class="game-card glass" data-game-type="memory">
+                            <div class="game-header">
+                                <h3><i class="fas fa-brain"></i> Memory Match</h3>
+                                <span class="game-badge">BRAIN</span>
+                            </div>
+                            <div class="memory-grid" id="memoryGrid"></div>
+                            <div class="game-stats">
+                                <span>Moves: <span id="memoryMoves">0</span></span>
+                                <span>Matches: <span id="memoryMatches">0</span>/8</span>
+                            </div>
+                            <button class="reset-game-btn" onclick="resetMemory()">New Game</button>
+                        </div>
+                        
+                        <!-- 2048 Game -->
+                        <div class="game-card glass" data-game-type="2048">
+                            <div class="game-header">
+                                <h3><i class="fas fa-puzzle-piece"></i> 2048</h3>
+                                <span class="game-badge">PUZZLE</span>
+                            </div>
+                            <div class="game-container">
+                                <canvas id="game2048Canvas" width="400" height="400"></canvas>
+                                <div class="game-overlay" id="game2048Overlay">
+                                    <h3>2048</h3>
+                                    <p>Merge numbers to reach 2048</p>
+                                    <button class="start-game-btn" onclick="start2048()">Start Game</button>
+                                </div>
+                            </div>
+                            <div class="game-stats">
+                                <span>Score: <span id="game2048Score">0</span></span>
+                                <span>Best: <span id="game2048Best">0</span></span>
+                            </div>
+                            <div class="game-controls">
+                                <button onclick="move2048('up')"><i class="fas fa-arrow-up"></i></button>
+                                <div>
+                                    <button onclick="move2048('left')"><i class="fas fa-arrow-left"></i></button>
+                                    <button onclick="move2048('down')"><i class="fas fa-arrow-down"></i></button>
+                                    <button onclick="move2048('right')"><i class="fas fa-arrow-right"></i></button>
+                                </div>
+                                <button onclick="reset2048()"><i class="fas fa-redo-alt"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tic Tac Toe -->
+                        <div class="game-card glass" data-game-type="tictactoe">
+                            <div class="game-header">
+                                <h3><i class="fas fa-times"></i> Tic Tac Toe</h3>
+                                <span class="game-badge">2 PLAYER</span>
+                            </div>
+                            <div class="tictactoe-grid" id="tictactoeGrid"></div>
+                            <div class="game-stats" id="tictactoeStatus">Player X's turn</div>
+                            <button class="reset-game-btn" onclick="resetTicTacToe()">New Game</button>
+                        </div>
+                        
+                        <!-- Rock Paper Scissors -->
+                        <div class="game-card glass" data-game-type="rps">
+                            <div class="game-header">
+                                <h3><i class="fas fa-hand"></i> Rock Paper Scissors</h3>
+                                <span class="game-badge">VS CPU</span>
+                            </div>
+                            <div class="rps-game">
+                                <div class="rps-choices">
+                                    <button onclick="playRPS('rock')"><i class="fas fa-hand-fist"></i></button>
+                                    <button onclick="playRPS('paper')"><i class="fas fa-hand"></i></button>
+                                    <button onclick="playRPS('scissors')"><i class="fas fa-hand-peace"></i></button>
+                                </div>
+                                <div class="rps-result" id="rpsResult">Choose your move</div>
+                                <div class="rps-score">
+                                    <span>You: <span id="rpsPlayerScore">0</span></span>
+                                    <span>CPU: <span id="rpsCpuScore">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hangman -->
+                        <div class="game-card glass" data-game-type="hangman">
+                            <div class="game-header">
+                                <h3><i class="fas fa-skull"></i> Hangman</h3>
+                                <span class="game-badge">WORD</span>
+                            </div>
+                            <div class="hangman-game">
+                                <canvas id="hangmanCanvas" width="200" height="200"></canvas>
+                                <div id="hangmanWord" class="hangman-word"></div>
+                                <div class="hangman-letters" id="hangmanLetters"></div>
+                                <div class="hangman-status" id="hangmanStatus"></div>
+                                <button class="reset-game-btn" onclick="resetHangman()">New Word</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fun Facts Page -->
+                <div class="page" id="factsPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-lightbulb"></i> Fun Facts Universe</h2>
+                        <button class="refresh-btn" id="refreshFact"><i class="fas fa-sync-alt"></i> New Fact</button>
+                    </div>
+                    
+                    <div class="facts-container">
+                        <div class="fact-card glass" id="factCard">
+                            <div class="fact-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div id="factText" class="fact-text">Click for amazing facts!</div>
+                            <div id="factCategory" class="fact-category"></div>
+                        </div>
+                        
+                        <div class="fact-categories glass">
+                            <h3>Categories</h3>
+                            <div class="category-buttons">
+                                <button class="fact-cat-btn" data-cat="science">Science</button>
+                                <button class="fact-cat-btn" data-cat="history">History</button>
+                                <button class="fact-cat-btn" data-cat="animals">Animals</button>
+                                <button class="fact-cat-btn" data-cat="space">Space</button>
+                                <button class="fact-cat-btn" data-cat="technology">Technology</button>
+                                <button class="fact-cat-btn" data-cat="random">Random</button>
+                            </div>
+                        </div>
+                        
+                        <div class="fact-history glass">
+                            <h3>Recently Viewed</h3>
+                            <div id="factHistory" class="fact-history-list"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jokes Page -->
+                <div class="page" id="jokesPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-laugh"></i> Jokes Factory</h2>
+                        <div class="joke-filters">
+                            <button class="joke-type-btn active" data-type="any">Any</button>
+                            <button class="joke-type-btn" data-type="programming">Programming</button>
+                            <button class="joke-type-btn" data-type="dad">Dad Jokes</button>
+                            <button class="joke-type-btn" data-type="pun">Puns</button>
+                            <button class="joke-type-btn" data-type="knock-knock">Knock-Knock</button>
+                        </div>
+                    </div>
+                    
+                    <div class="jokes-container">
+                        <div class="joke-card glass" id="jokeCard">
+                            <div class="joke-setup" id="jokeSetup"></div>
+                            <div class="joke-punchline" id="jokePunchline"></div>
+                            <button class="reveal-btn" id="revealJoke">Reveal Punchline</button>
+                            <button class="next-joke-btn" id="nextJoke"><i class="fas fa-forward"></i> Next Joke</button>
+                        </div>
+                        
+                        <div class="joke-stats glass">
+                            <h3>Joke Statistics</h3>
+                            <div class="joke-stat-item">
+                                <span>Jokes told today:</span>
+                                <span id="jokesToday">0</span>
+                            </div>
+                            <div class="joke-stat-item">
+                                <span>Funniest category:</span>
+                                <span id="funniestCategory">Programming</span>
+                            </div>
+                            <div class="joke-stat-item">
+                                <span>Your favorites:</span>
+                                <span id="favoriteCount">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="favorite-jokes glass">
+                            <h3><i class="fas fa-star"></i> Your Favorite Jokes</h3>
+                            <div id="favoriteJokesList" class="favorite-list"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quotes Page -->
+                <div class="page" id="quotesPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-quote-right"></i> Inspirational Quotes</h2>
+                        <button class="refresh-btn" id="refreshQuote"><i class="fas fa-sync-alt"></i> New Quote</button>
+                    </div>
+                    
+                    <div class="quotes-container">
+                        <div class="quote-card glass" id="quoteCard">
+                            <i class="fas fa-quote-left quote-icon"></i>
+                            <div id="quoteText" class="quote-text">Loading...</div>
+                            <div id="quoteAuthor" class="quote-author"></div>
+                            <div class="quote-actions">
+                                <button onclick="shareQuote()"><i class="fas fa-share"></i> Share</button>
+                                <button onclick="saveQuote()"><i class="fas fa-heart"></i> Save</button>
+                            </div>
+                        </div>
+                        
+                        <div class="quote-categories glass">
+                            <h3>Categories</h3>
+                            <select id="quoteCategory" class="quote-select">
+                                <option value="inspirational">Inspirational</option>
+                                <option value="motivation">Motivation</option>
+                                <option value="life">Life</option>
+                                <option value="success">Success</option>
+                                <option value="wisdom">Wisdom</option>
+                                <option value="love">Love</option>
+                                <option value="happiness">Happiness</option>
+                            </select>
+                        </div>
+                        
+                        <div class="saved-quotes glass">
+                            <h3><i class="fas fa-heart"></i> Saved Quotes</h3>
+                            <div id="savedQuotesList" class="saved-list"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Crypto Page -->
+                <div class="page" id="cryptoPage">
+                    <div class="page-header">
+                        <h2><i class="fab fa-bitcoin"></i> Crypto Prices</h2>
+                        <button class="refresh-btn" id="refreshCrypto"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+                    
+                    <div class="crypto-grid" id="cryptoGrid">
+                        <div class="loading">Loading crypto data...</div>
+                    </div>
+                    
+                    <div class="crypto-converter glass">
+                        <h3>Crypto Converter</h3>
+                        <div class="converter-inputs">
+                            <input type="number" id="cryptoAmount" placeholder="Amount" value="1">
+                            <select id="cryptoFrom">
+                                <option value="bitcoin">BTC</option>
+                                <option value="ethereum">ETH</option>
+                                <option value="dogecoin">DOGE</option>
+                            </select>
+                            <span>to</span>
+                            <select id="cryptoTo">
+                                <option value="usd">USD</option>
+                                <option value="eur">EUR</option>
+                                <option value="gbp">GBP</option>
+                            </select>
+                            <button id="convertCrypto">Convert</button>
+                        </div>
+                        <div id="conversionResult" class="conversion-result"></div>
+                    </div>
+                </div>
+                
+                <!-- Movies Page -->
+                <div class="page" id="moviesPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-film"></i> Movie Database</h2>
+                        <div class="search-box">
+                            <input type="text" id="movieSearch" placeholder="Search movies...">
+                            <button id="searchMovies"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="movie-categories">
+                        <button class="movie-cat-btn active" data-cat="popular">Popular</button>
+                        <button class="movie-cat-btn" data-cat="top_rated">Top Rated</button>
+                        <button class="movie-cat-btn" data-cat="upcoming">Upcoming</button>
+                        <button class="movie-cat-btn" data-cat="now_playing">Now Playing</button>
+                    </div>
+                    
+                    <div class="movies-grid" id="moviesGrid">
+                        <div class="loading">Loading movies...</div>
+                    </div>
+                </div>
+                
+                <!-- Trivia Page -->
+                <div class="page" id="triviaPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-question-circle"></i> Trivia Quiz</h2>
+                        <div class="trivia-controls">
+                            <select id="triviaCategory">
+                                <option value="9">General Knowledge</option>
+                                <option value="10">Books</option>
+                                <option value="11">Film</option>
+                                <option value="12">Music</option>
+                                <option value="14">Television</option>
+                                <option value="15">Video Games</option>
+                                <option value="17">Science & Nature</option>
+                                <option value="18">Computers</option>
+                                <option value="19">Mathematics</option>
+                                <option value="20">Mythology</option>
+                                <option value="21">Sports</option>
+                                <option value="22">Geography</option>
+                                <option value="23">History</option>
+                                <option value="24">Politics</option>
+                                <option value="25">Art</option>
+                                <option value="26">Celebrities</option>
+                                <option value="27">Animals</option>
+                            </select>
+                            <select id="triviaDifficulty">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                            <button id="startTrivia" class="start-trivia-btn">Start Quiz</button>
+                        </div>
+                    </div>
+                    
+                    <div class="trivia-container glass" id="triviaContainer">
+                        <div class="trivia-question" id="triviaQuestion"></div>
+                        <div class="trivia-options" id="triviaOptions"></div>
+                        <div class="trivia-stats" id="triviaStats">
+                            <span>Score: <span id="triviaScore">0</span></span>
+                            <span>Question: <span id="triviaCurrent">1</span>/<span id="triviaTotal">10</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dictionary Page -->
+                <div class="page" id="dictionaryPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-book"></i> Dictionary</h2>
+                        <div class="search-box">
+                            <input type="text" id="wordSearch" placeholder="Enter a word..." value="hello">
+                            <button id="searchWord"><i class="fas fa-search"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="dictionary-container glass" id="dictionaryContainer">
+                        <div class="loading">Search for a word...</div>
+                    </div>
+                </div>
+                
+                <!-- Translator Page -->
+                <div class="page" id="translatePage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-language"></i> Translator</h2>
+                    </div>
+                    
+                    <div class="translator-container glass">
+                        <div class="translator-inputs">
+                            <div class="language-select">
+                                <select id="sourceLang">
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                    <option value="it">Italian</option>
+                                    <option value="pt">Portuguese</option>
+                                    <option value="ru">Russian</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="ko">Korean</option>
+                                    <option value="zh">Chinese</option>
+                                    <option value="ar">Arabic</option>
+                                    <option value="hi">Hindi</option>
+                                    <option value="ur">Urdu</option>
+                                    <option value="ps">Pashto</option>
+                                    <option value="fa">Persian</option>
+                                </select>
+                                <button id="swapLangs"><i class="fas fa-exchange-alt"></i></button>
+                                <select id="targetLang">
+                                    <option value="ur">Urdu</option>
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                    <option value="it">Italian</option>
+                                    <option value="pt">Portuguese</option>
+                                    <option value="ru">Russian</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="ko">Korean</option>
+                                    <option value="zh">Chinese</option>
+                                    <option value="ar">Arabic</option>
+                                    <option value="hi">Hindi</option>
+                                    <option value="ps">Pashto</option>
+                                    <option value="fa">Persian</option>
+                                </select>
+                            </div>
+                            <textarea id="sourceText" placeholder="Enter text to translate..." rows="4"></textarea>
+                            <button id="translateBtn" class="translate-btn">Translate</button>
+                            <textarea id="targetText" placeholder="Translation..." rows="4" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- QR Generator Page -->
+                <div class="page" id="qrPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
+                    </div>
+                    
+                    <div class="qr-container glass">
+                        <div class="qr-inputs">
+                            <input type="text" id="qrText" placeholder="Enter text or URL..." value="https://t.me/YourBot">
+                            <select id="qrSize">
+                                <option value="100">Small</option>
+                                <option value="200" selected>Medium</option>
+                                <option value="300">Large</option>
+                            </select>
+                            <button id="generateQR">Generate QR Code</button>
+                        </div>
+                        <div class="qr-preview" id="qrPreview"></div>
+                        <button id="downloadQR" class="download-btn">Download QR Code</button>
+                    </div>
+                </div>
+                
+                <!-- Password Generator Page -->
+                <div class="page" id="passwordPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-lock"></i> Password Generator</h2>
+                    </div>
+                    
+                    <div class="password-container glass">
+                        <div class="password-display">
+                            <input type="text" id="passwordOutput" readonly>
+                            <button id="copyPassword"><i class="fas fa-copy"></i></button>
+                        </div>
+                        
+                        <div class="password-options">
+                            <div class="option">
+                                <label>Length: <span id="lengthValue">12</span></label>
+                                <input type="range" id="passwordLength" min="6" max="30" value="12">
+                            </div>
+                            
+                            <div class="option">
+                                <label>
+                                    <input type="checkbox" id="includeUppercase" checked> Include Uppercase (A-Z)
+                                </label>
+                            </div>
+                            
+                            <div class="option">
+                                <label>
+                                    <input type="checkbox" id="includeLowercase" checked> Include Lowercase (a-z)
+                                </label>
+                            </div>
+                            
+                            <div class="option">
+                                <label>
+                                    <input type="checkbox" id="includeNumbers" checked> Include Numbers (0-9)
+                                </label>
+                            </div>
+                            
+                            <div class="option">
+                                <label>
+                                    <input type="checkbox" id="includeSymbols"> Include Symbols (!@#$%^&*)
+                                </label>
+                            </div>
+                            
+                            <button id="generatePassword" class="generate-btn">Generate Password</button>
+                        </div>
+                        
+                        <div class="password-strength">
+                            <h4>Password Strength</h4>
+                            <div class="strength-meter" id="strengthMeter">
+                                <div class="strength-bar" style="width: 0%"></div>
+                            </div>
+                            <p id="strengthText">Very Weak</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Page -->
+                <div class="page" id="settingsPage">
+                    <div class="page-header">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <div class="settings-group glass">
+                            <h3>Appearance</h3>
+                            <div class="setting-item">
+                                <span>Dark Mode</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="darkModeToggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Animations</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="animationsToggle" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Font Size</span>
+                                <select id="fontSize">
+                                    <option value="small">Small</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="large">Large</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group glass">
+                            <h3>Notifications</h3>
+                            <div class="setting-item">
+                                <span>Push Notifications</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="pushNotifications">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Daily Quote</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="dailyQuoteNotify" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <span>Weather Alerts</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="weatherAlerts" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group glass">
+                            <h3>Language</h3>
+                            <div class="setting-item">
+                                <span>App Language</span>
+                                <select id="appLanguage">
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                    <option value="ar">Arabic</option>
+                                    <option value="hi">Hindi</option>
+                                    <option value="ur">Urdu</option>
+                                    <option value="ps">Pashto</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group glass">
+                            <h3>Data & Storage</h3>
+                            <div class="setting-item">
+                                <span>Clear Cache</span>
+                                <button id="clearCache" class="danger-btn">Clear</button>
+                            </div>
+                            <div class="setting-item">
+                                <span>Export Data</span>
+                                <button id="exportData">Export</button>
+                            </div>
+                            <div class="setting-item">
+                                <span>Storage Used</span>
+                                <span id="storageUsed">0 MB</span>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-group glass">
+                            <h3>About</h3>
+                            <div class="about-info">
+                                <p><strong>Version:</strong> 2.0.0</p>
+                                <p><strong>Developer:</strong> Farid Ahmad Khan</p>
+                                <p><strong>Telegram:</strong> @YourUsername</p>
+                                <p><strong>GitHub:</strong> faridahmadkan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
-
-            <!-- Footer -->
-            <footer class="footer">
-                <p>Created by <strong>Farid Ahmad Khan</strong> | Khan AI Solutions</p>
-            </footer>
+            
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" data-page="dashboard">
+                    <i class="fas fa-rocket"></i>
+                    <span>Home</span>
+                </button>
+                <button class="nav-btn" data-page="weather">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span>Weather</span>
+                </button>
+                <button class="nav-btn" data-page="news">
+                    <i class="fas fa-newspaper"></i>
+                    <span>News</span>
+                </button>
+                <button class="nav-btn" data-page="games">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Games</span>
+                </button>
+                <button class="nav-btn" data-page="facts">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Facts</span>
+                </button>
+            </nav>
         </div>
     </div>
-
+    
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Achievement Popup -->
+    <div class="achievement-popup" id="achievementPopup">
+        <i class="fas fa-trophy"></i>
+        <div>
+            <h4>Achievement Unlocked!</h4>
+            <p id="achievementName"></p>
+        </div>
+    </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
