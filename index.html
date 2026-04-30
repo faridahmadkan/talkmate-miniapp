@@ -3,1042 +3,1191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TalkMate Universe - World Class Mini App</title>
+    <title>TalkMate Universe - Ultimate Experience</title>
     
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+            --transition: 300ms ease;
+        }
+
+        body.dark-mode {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background var(--transition), color var(--transition);
+            min-height: 100vh;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeOut 0.5s ease 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .splash-content {
+            text-align: center;
+        }
+
+        .splash-logo {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .splash-logo i {
+            font-size: 48px;
+            color: white;
+        }
+
+        .splash-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            color: white;
+        }
+
+        .splash-title span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loader {
+            width: 200px;
+            height: 4px;
+            background: #1e293b;
+            border-radius: 4px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        .loader-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--gradient-primary);
+            animation: loadProgress 2s linear forwards;
+        }
+
+        @keyframes loadProgress {
+            to { width: 100%; }
+        }
+
+        .loading-tip {
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        /* Main App */
+        .main-app {
+            display: none;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+
+        .menu-btn, .theme-toggle, .close-menu {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .menu-btn:hover, .theme-toggle:hover, .close-menu:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .logo span {
+            font-weight: 700;
+        }
+
+        .logo span span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .notification-bell .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--error);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            min-width: 18px;
+        }
+
+        .search-container {
+            padding: 0 16px 12px;
+            position: relative;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 28px;
+            top: 12px;
+            color: var(--text-muted);
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 10px 12px 10px 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Side Menu */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 300px;
+            height: 100%;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            z-index: 200;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .side-menu.active {
+            left: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .user-profile {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 12px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .menu-nav {
+            padding: 12px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 4px;
+        }
+
+        .menu-item i {
+            width: 24px;
+            margin-right: 12px;
+            color: var(--primary);
+        }
+
+        .menu-item .badge {
+            margin-left: auto;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .menu-item.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .menu-item.active i {
+            color: white;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 150;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 110px 16px 70px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Cards */
+        .glass {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        /* News Grid */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .news-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .news-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .news-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            background: var(--bg-tertiary);
+        }
+
+        .news-content {
+            padding: 12px;
+        }
+
+        .news-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Games Grid */
+        .games-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .games-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .game-container {
+            position: relative;
+            background: #0f172a;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        #snakeCanvas, #game2048Canvas {
+            width: 100%;
+            height: auto;
+            max-width: 400px;
+            aspect-ratio: 1;
+        }
+
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .game-controls button {
+            width: 45px;
+            height: 45px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border-radius: 12px;
+        }
+
+        .game-overlay.hidden {
+            display: none;
+        }
+
+        .start-game-btn {
+            padding: 10px 24px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        /* Memory Game */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .memory-card.flipped, .memory-card.matched {
+            background: var(--success);
+        }
+
+        /* Tic Tac Toe */
+        .tictactoe-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tictactoe-cell {
+            aspect-ratio: 1;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Crypto Grid */
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .crypto-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .crypto-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .crypto-change.positive { color: var(--success); }
+        .crypto-change.negative { color: var(--error); }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .nav-btn.active {
+            color: var(--primary);
+        }
+
+        .nav-btn i {
+            font-size: 22px;
+        }
+
+        .nav-btn span {
+            font-size: 10px;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 16px;
+            z-index: 300;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .fact-text, .quote-text {
+            font-size: 18px;
+            margin: 16px 0;
+        }
+
+        button {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .refresh-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        textarea, select, input {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            color: var(--text-primary);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <!-- Splash Screen -->
         <div class="splash-screen" id="splashScreen">
-            <div id="particles-js"></div>
             <div class="splash-content">
-                <div class="splash-logo">
-                    <i class="fas fa-rocket"></i>
-                </div>
+                <div class="splash-logo"><i class="fas fa-rocket"></i></div>
                 <h1 class="splash-title">TalkMate <span>UNIVERSE</span></h1>
-                <p class="splash-subtitle">Loading cosmic experience...</p>
-                <div class="loader">
-                    <div class="loader-bar"></div>
-                </div>
-                <div class="loading-tip" id="loadingTip">Initializing galaxies...</div>
-                <p class="splash-credit">Created by <span>Farid Ahmad Khan</span></p>
+                <p class="loading-tip" id="loadingTip">Initializing galaxies...</p>
+                <div class="loader"><div class="loader-bar"></div></div>
             </div>
         </div>
 
         <!-- Main App -->
         <div class="main-app" id="mainApp">
-            <!-- Header -->
-            <header class="header glass" id="header">
+            <header class="header">
                 <div class="header-content">
-                    <button class="menu-btn" id="menuToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    
-                    <div class="logo">
-                        <i class="fas fa-rocket"></i>
-                        <span>TalkMate<span>UNIVERSE</span></span>
-                    </div>
-                    
+                    <button class="menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+                    <div class="logo"><i class="fas fa-rocket"></i><span>TalkMate<span>UNIVERSE</span></span></div>
                     <div class="header-actions">
-                        <button class="theme-toggle" id="themeToggle">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                        <div class="notification-bell" id="notificationBell">
-                            <i class="fas fa-bell"></i>
-                            <span class="badge" id="notificationCount">3</span>
-                        </div>
+                        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                        <div class="notification-bell" id="notificationBell"><i class="fas fa-bell"></i><span class="badge" id="notificationCount">0</span></div>
                     </div>
                 </div>
-                
-                <!-- Search Bar -->
                 <div class="search-container">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="globalSearch" placeholder="Search news, facts, jokes...">
-                    <div class="search-results" id="searchResults"></div>
+                    <input type="text" id="globalSearch" placeholder="Search news, facts...">
                 </div>
             </header>
 
-            <!-- Side Menu -->
             <div class="side-menu" id="sideMenu">
-                <div class="menu-header">
-                    <div class="menu-logo">
-                        <i class="fas fa-cube"></i>
-                    </div>
-                    <button class="close-menu" id="closeMenu">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="user-profile" id="userProfileSection">
-                    <div class="profile-avatar" id="profileAvatar">
-                        <img src="https://ui-avatars.com/api/?name=Explorer&background=6366f1&color=fff&size=128" alt="User">
-                        <div class="avatar-glow"></div>
-                    </div>
+                <div class="menu-header"><div class="menu-logo"><i class="fas fa-cube"></i></div><button class="close-menu" id="closeMenu"><i class="fas fa-times"></i></button></div>
+                <div class="user-profile">
+                    <div class="profile-avatar"><i class="fas fa-user-astronaut"></i></div>
                     <h3 id="profileName">Explorer</h3>
-                    <p id="profileStatus">Online • Level <span id="userLevel">5</span></p>
-                    
                     <div class="profile-stats">
-                        <div class="stat">
-                            <span class="stat-value" id="userPoints">1250</span>
-                            <span class="stat-label">Points</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="userAchievements">8</span>
-                            <span class="stat-label">Achievements</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="userStreak">7</span>
-                            <span class="stat-label">Streak</span>
-                        </div>
+                        <div class="stat"><span class="stat-value" id="userPoints">0</span><span class="stat-label">Points</span></div>
+                        <div class="stat"><span class="stat-value" id="userLevel">1</span><span class="stat-label">Level</span></div>
+                        <div class="stat"><span class="stat-value" id="userStreak">0</span><span class="stat-label">Streak</span></div>
                     </div>
                 </div>
-                
                 <nav class="menu-nav">
-                    <a href="#" class="menu-item active" data-page="dashboard">
-                        <i class="fas fa-rocket"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="weather">
-                        <i class="fas fa-cloud-sun"></i>
-                        <span>Weather Hub</span>
-                        <span class="badge">LIVE</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="news">
-                        <i class="fas fa-newspaper"></i>
-                        <span>News World</span>
-                        <span class="badge">24/7</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="games">
-                        <i class="fas fa-gamepad"></i>
-                        <span>Game Zone</span>
-                        <span class="badge">8 GAMES</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="facts">
-                        <i class="fas fa-lightbulb"></i>
-                        <span>Fun Facts</span>
-                        <span class="badge">RANDOM</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="jokes">
-                        <i class="fas fa-laugh"></i>
-                        <span>Jokes Factory</span>
-                        <span class="badge">😂</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="quotes">
-                        <i class="fas fa-quote-right"></i>
-                        <span>Inspirational Quotes</span>
-                        <span class="badge">✨</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="crypto">
-                        <i class="fab fa-bitcoin"></i>
-                        <span>Crypto Prices</span>
-                        <span class="badge">LIVE</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="movies">
-                        <i class="fas fa-film"></i>
-                        <span>Movie Database</span>
-                        <span class="badge">TMDB</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="trivia">
-                        <i class="fas fa-question-circle"></i>
-                        <span>Trivia Quiz</span>
-                        <span class="badge">FUN</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="dictionary">
-                        <i class="fas fa-book"></i>
-                        <span>Dictionary</span>
-                        <span class="badge">WORDS</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="translate">
-                        <i class="fas fa-language"></i>
-                        <span>Translator</span>
-                        <span class="badge">100+</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="qr">
-                        <i class="fas fa-qrcode"></i>
-                        <span>QR Generator</span>
-                        <span class="badge">TOOL</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="password">
-                        <i class="fas fa-lock"></i>
-                        <span>Password Generator</span>
-                        <span class="badge">SECURE</span>
-                    </a>
-                    <a href="#" class="menu-item" data-page="settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
+                    <a href="#" class="menu-item active" data-page="dashboard"><i class="fas fa-rocket"></i><span>Dashboard</span></a>
+                    <a href="#" class="menu-item" data-page="weather"><i class="fas fa-cloud-sun"></i><span>Weather</span></a>
+                    <a href="#" class="menu-item" data-page="news"><i class="fas fa-newspaper"></i><span>News</span><span class="badge">LIVE</span></a>
+                    <a href="#" class="menu-item" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span><span class="badge">6</span></a>
+                    <a href="#" class="menu-item" data-page="facts"><i class="fas fa-lightbulb"></i><span>Facts</span></a>
+                    <a href="#" class="menu-item" data-page="jokes"><i class="fas fa-laugh"></i><span>Jokes</span></a>
+                    <a href="#" class="menu-item" data-page="quotes"><i class="fas fa-quote-right"></i><span>Quotes</span></a>
+                    <a href="#" class="menu-item" data-page="crypto"><i class="fab fa-bitcoin"></i><span>Crypto</span></a>
                 </nav>
-                
-                <div class="menu-footer">
-                    <div class="streak-progress">
-                        <div class="progress-info">
-                            <span>Daily Goal</span>
-                            <span>70%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <p class="copyright">© 2026 Farid Ahmad Khan</p>
-                </div>
             </div>
-            
             <div class="overlay" id="overlay"></div>
 
-            <!-- Main Content -->
             <main class="main-content" id="mainContent">
-                <!-- Dashboard Page -->
+                <!-- Dashboard -->
                 <div class="page active" id="dashboardPage">
-                    <div class="welcome-section">
-                        <h1 class="glitch-text" data-text="Welcome Back, Explorer!">Welcome Back, Explorer!</h1>
-                        <p id="currentDateTime"></p>
-                    </div>
-                    
-                    <!-- Quick Stats -->
+                    <h1 class="glitch-text">Welcome, Explorer!</h1>
                     <div class="stats-grid">
-                        <div class="stat-card glass" onclick="navigateTo('weather')">
-                            <div class="stat-icon">
-                                <i class="fas fa-temperature-high"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Weather</h3>
-                                <p id="quickWeather">Loading...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card glass" onclick="navigateTo('news')">
-                            <div class="stat-icon">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Top News</h3>
-                                <p id="quickNews">Loading...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card glass" onclick="navigateTo('crypto')">
-                            <div class="stat-icon">
-                                <i class="fab fa-bitcoin"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Bitcoin</h3>
-                                <p id="quickBtc">Loading...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="stat-card glass" onclick="navigateTo('games')">
-                            <div class="stat-icon">
-                                <i class="fas fa-gamepad"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>Games</h3>
-                                <p>8 Available</p>
-                            </div>
-                        </div>
+                        <div class="stat-card glass" onclick="navigateTo('weather')"><div class="stat-icon"><i class="fas fa-temperature-high"></i></div><div><h3>Weather</h3><p id="quickWeather">Loading...</p></div></div>
+                        <div class="stat-card glass" onclick="navigateTo('news')"><div class="stat-icon"><i class="fas fa-newspaper"></i></div><div><h3>Top News</h3><p id="quickNews">Loading...</p></div></div>
+                        <div class="stat-card glass" onclick="navigateTo('crypto')"><div class="stat-icon"><i class="fab fa-bitcoin"></i></div><div><h3>Bitcoin</h3><p id="quickBtc">Loading...</p></div></div>
                     </div>
-                    
-                    <!-- Daily Inspiration -->
-                    <div class="daily-card glass">
-                        <div class="daily-header">
-                            <i class="fas fa-quote-left"></i>
-                            <h2>Daily Inspiration</h2>
-                        </div>
-                        <div id="dailyQuote" class="daily-quote">Loading...</div>
-                        <div id="dailyAuthor" class="daily-author"></div>
-                    </div>
-                    
-                    <!-- Fun Fact of the Day -->
-                    <div class="daily-card glass">
-                        <div class="daily-header">
-                            <i class="fas fa-lightbulb"></i>
-                            <h2>Fun Fact of the Day</h2>
-                        </div>
-                        <div id="dailyFact" class="daily-fact">Loading...</div>
-                    </div>
-                    
-                    <!-- Joke of the Day -->
-                    <div class="daily-card glass">
-                        <div class="daily-header">
-                            <i class="fas fa-laugh"></i>
-                            <h2>Joke of the Day</h2>
-                        </div>
-                        <div id="dailyJoke" class="daily-joke">Loading...</div>
-                    </div>
-                    
-                    <!-- Featured Games -->
-                    <h2 class="section-title">Featured Games</h2>
-                    <div class="featured-games">
-                        <div class="game-card-small" onclick="navigateTo('games', 'snake')">
-                            <i class="fas fa-snake"></i>
-                            <span>Snake</span>
-                        </div>
-                        <div class="game-card-small" onclick="navigateTo('games', 'tetris')">
-                            <i class="fas fa-cubes"></i>
-                            <span>Tetris</span>
-                        </div>
-                        <div class="game-card-small" onclick="navigateTo('games', 'memory')">
-                            <i class="fas fa-brain"></i>
-                            <span>Memory</span>
-                        </div>
-                        <div class="game-card-small" onclick="navigateTo('games', '2048')">
-                            <i class="fas fa-puzzle-piece"></i>
-                            <span>2048</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Recent Activity -->
-                    <div class="activity-feed glass">
-                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                        <div id="activityList">
-                            <div class="activity-item">
-                                <i class="fas fa-check-circle" style="color: #22c55e;"></i>
-                                <span>Checked weather in Kabul</span>
-                                <small>2 min ago</small>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="glass"><h3><i class="fas fa-quote-left"></i> Daily Inspiration</h3><div id="dailyQuote">Loading...</div><div id="dailyAuthor"></div></div>
+                    <div class="glass"><h3><i class="fas fa-lightbulb"></i> Fun Fact</h3><div id="dailyFact">Loading...</div></div>
                 </div>
-                
+
                 <!-- Weather Page -->
                 <div class="page" id="weatherPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-cloud-sun"></i> Weather Hub</h2>
-                        <div class="search-box">
-                            <input type="text" id="weatherSearch" placeholder="Enter city name..." value="Kabul">
-                            <button id="weatherSearchBtn"><i class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="weather-grid">
-                        <div class="current-weather glass" id="currentWeather">
-                            <div class="weather-loading">Loading weather data...</div>
-                        </div>
-                        
-                        <div class="weather-details glass" id="weatherDetails">
-                            <div class="loading">Loading details...</div>
-                        </div>
-                        
-                        <div class="forecast-card glass" id="forecast">
-                            <h3>5-Day Forecast</h3>
-                            <div id="forecastList" class="forecast-list">
-                                <div class="loading">Loading forecast...</div>
-                            </div>
-                        </div>
-                        
-                        <div class="air-quality glass" id="airQuality">
-                            <h3>Air Quality</h3>
-                            <div id="airQualityData" class="loading">Loading...</div>
-                        </div>
-                        
-                        <div class="uv-index glass" id="uvIndex">
-                            <h3>UV Index</h3>
-                            <div id="uvData" class="loading">Loading...</div>
-                        </div>
-                        
-                        <div class="weather-map glass" id="weatherMap">
-                            <h3>Weather Map</h3>
-                            <canvas id="mapCanvas"></canvas>
-                        </div>
-                    </div>
+                    <div class="page-header"><h2><i class="fas fa-cloud-sun"></i> Weather</h2><input type="text" id="weatherSearch" placeholder="City name" value="London"><button id="weatherSearchBtn">Search</button></div>
+                    <div id="weatherDisplay" class="glass">Loading...</div>
                 </div>
-                
+
                 <!-- News Page -->
                 <div class="page" id="newsPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-newspaper"></i> News World</h2>
-                        <div class="news-categories">
-                            <button class="category-btn active" data-category="general">General</button>
-                            <button class="category-btn" data-category="technology">Tech</button>
-                            <button class="category-btn" data-category="business">Business</button>
-                            <button class="category-btn" data-category="sports">Sports</button>
-                            <button class="category-btn" data-category="entertainment">Entertainment</button>
-                            <button class="category-btn" data-category="science">Science</button>
-                            <button class="category-btn" data-category="health">Health</button>
-                        </div>
-                    </div>
-                    
-                    <div class="news-grid" id="newsGrid">
-                        <div class="loading">Loading news...</div>
-                    </div>
+                    <h2><i class="fas fa-newspaper"></i> News</h2>
+                    <div class="news-categories" id="newsCategories"></div>
+                    <div class="news-grid" id="newsGrid"><div class="loading">Loading news...</div></div>
                 </div>
-                
+
                 <!-- Games Page -->
                 <div class="page" id="gamesPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-gamepad"></i> Game Zone</h2>
-                        <div class="game-filters">
-                            <button class="filter-btn active" data-game-filter="all">All</button>
-                            <button class="filter-btn" data-game-filter="snake">Snake</button>
-                            <button class="filter-btn" data-game-filter="tetris">Tetris</button>
-                            <button class="filter-btn" data-game-filter="memory">Memory</button>
-                        </div>
-                    </div>
-                    
+                    <h2><i class="fas fa-gamepad"></i> Games</h2>
                     <div class="games-grid" id="gamesGrid">
-                        <!-- Snake Game -->
-                        <div class="game-card glass" data-game-type="snake">
-                            <div class="game-header">
-                                <h3><i class="fas fa-snake"></i> Snake Game</h3>
-                                <span class="game-badge">CLASSIC</span>
-                            </div>
-                            <div class="game-container">
-                                <canvas id="snakeCanvas" width="400" height="400"></canvas>
-                                <div class="game-overlay" id="snakeOverlay">
-                                    <h3>Snake Game</h3>
-                                    <p>Use arrow keys to control the snake</p>
-                                    <button class="start-game-btn" onclick="startSnake()">Start Game</button>
-                                </div>
-                            </div>
-                            <div class="game-stats">
-                                <span>Score: <span id="snakeScore">0</span></span>
-                                <span>High Score: <span id="snakeHighScore">0</span></span>
-                            </div>
-                            <div class="game-controls">
-                                <button onclick="controlSnake('up')"><i class="fas fa-arrow-up"></i></button>
-                                <div>
-                                    <button onclick="controlSnake('left')"><i class="fas fa-arrow-left"></i></button>
-                                    <button onclick="controlSnake('down')"><i class="fas fa-arrow-down"></i></button>
-                                    <button onclick="controlSnake('right')"><i class="fas fa-arrow-right"></i></button>
-                                </div>
-                                <button onclick="resetSnake()"><i class="fas fa-redo-alt"></i></button>
-                            </div>
+                        <!-- Snake -->
+                        <div class="game-card"><h3><i class="fas fa-snake"></i> Snake</h3>
+                            <div class="game-container"><canvas id="snakeCanvas" width="400" height="400"></canvas><div class="game-overlay" id="snakeOverlay"><button class="start-game-btn" onclick="startSnakeGame()">Start Game</button></div></div>
+                            <div>Score: <span id="snakeScore">0</span> | High: <span id="snakeHighScore">0</span></div>
+                            <div class="game-controls"><button onclick="changeDirection('up')"><i class="fas fa-arrow-up"></i></button><button onclick="changeDirection('left')"><i class="fas fa-arrow-left"></i></button><button onclick="changeDirection('down')"><i class="fas fa-arrow-down"></i></button><button onclick="changeDirection('right')"><i class="fas fa-arrow-right"></i></button></div>
                         </div>
-                        
-                        <!-- Tetris Game -->
-                        <div class="game-card glass" data-game-type="tetris">
-                            <div class="game-header">
-                                <h3><i class="fas fa-cubes"></i> Tetris</h3>
-                                <span class="game-badge">CLASSIC</span>
-                            </div>
-                            <div class="game-container tetris-container">
-                                <canvas id="tetrisCanvas" width="300" height="600"></canvas>
-                                <canvas id="tetrisNextCanvas" width="120" height="120"></canvas>
-                                <div class="game-overlay" id="tetrisOverlay">
-                                    <h3>Tetris</h3>
-                                    <p>Arrange falling blocks</p>
-                                    <button class="start-game-btn" onclick="startTetris()">Start Game</button>
-                                </div>
-                            </div>
-                            <div class="game-stats">
-                                <span>Score: <span id="tetrisScore">0</span></span>
-                                <span>Lines: <span id="tetrisLines">0</span></span>
-                                <span>Level: <span id="tetrisLevel">1</span></span>
-                            </div>
-                            <div class="game-controls">
-                                <button onclick="tetrisMove('left')"><i class="fas fa-arrow-left"></i></button>
-                                <button onclick="tetrisRotate()"><i class="fas fa-undo-alt"></i></button>
-                                <button onclick="tetrisMove('right')"><i class="fas fa-arrow-right"></i></button>
-                                <button onclick="tetrisMove('down')"><i class="fas fa-arrow-down"></i></button>
-                                <button onclick="tetrisDrop()"><i class="fas fa-bolt"></i></button>
-                                <button onclick="resetTetris()"><i class="fas fa-redo-alt"></i></button>
-                            </div>
-                        </div>
-                        
-                        <!-- Memory Game -->
-                        <div class="game-card glass" data-game-type="memory">
-                            <div class="game-header">
-                                <h3><i class="fas fa-brain"></i> Memory Match</h3>
-                                <span class="game-badge">BRAIN</span>
-                            </div>
-                            <div class="memory-grid" id="memoryGrid"></div>
-                            <div class="game-stats">
-                                <span>Moves: <span id="memoryMoves">0</span></span>
-                                <span>Matches: <span id="memoryMatches">0</span>/8</span>
-                            </div>
-                            <button class="reset-game-btn" onclick="resetMemory()">New Game</button>
-                        </div>
-                        
-                        <!-- 2048 Game -->
-                        <div class="game-card glass" data-game-type="2048">
-                            <div class="game-header">
-                                <h3><i class="fas fa-puzzle-piece"></i> 2048</h3>
-                                <span class="game-badge">PUZZLE</span>
-                            </div>
-                            <div class="game-container">
-                                <canvas id="game2048Canvas" width="400" height="400"></canvas>
-                                <div class="game-overlay" id="game2048Overlay">
-                                    <h3>2048</h3>
-                                    <p>Merge numbers to reach 2048</p>
-                                    <button class="start-game-btn" onclick="start2048()">Start Game</button>
-                                </div>
-                            </div>
-                            <div class="game-stats">
-                                <span>Score: <span id="game2048Score">0</span></span>
-                                <span>Best: <span id="game2048Best">0</span></span>
-                            </div>
-                            <div class="game-controls">
-                                <button onclick="move2048('up')"><i class="fas fa-arrow-up"></i></button>
-                                <div>
-                                    <button onclick="move2048('left')"><i class="fas fa-arrow-left"></i></button>
-                                    <button onclick="move2048('down')"><i class="fas fa-arrow-down"></i></button>
-                                    <button onclick="move2048('right')"><i class="fas fa-arrow-right"></i></button>
-                                </div>
-                                <button onclick="reset2048()"><i class="fas fa-redo-alt"></i></button>
-                            </div>
-                        </div>
-                        
+                        <!-- Memory Match -->
+                        <div class="game-card"><h3><i class="fas fa-brain"></i> Memory Match</h3><div class="memory-grid" id="memoryGrid"></div><div>Moves: <span id="memoryMoves">0</span> | Matches: <span id="memoryMatches">0</span>/8</div><button onclick="initMemoryGame()">New Game</button></div>
                         <!-- Tic Tac Toe -->
-                        <div class="game-card glass" data-game-type="tictactoe">
-                            <div class="game-header">
-                                <h3><i class="fas fa-times"></i> Tic Tac Toe</h3>
-                                <span class="game-badge">2 PLAYER</span>
-                            </div>
-                            <div class="tictactoe-grid" id="tictactoeGrid"></div>
-                            <div class="game-stats" id="tictactoeStatus">Player X's turn</div>
-                            <button class="reset-game-btn" onclick="resetTicTacToe()">New Game</button>
-                        </div>
-                        
-                        <!-- Rock Paper Scissors -->
-                        <div class="game-card glass" data-game-type="rps">
-                            <div class="game-header">
-                                <h3><i class="fas fa-hand"></i> Rock Paper Scissors</h3>
-                                <span class="game-badge">VS CPU</span>
-                            </div>
-                            <div class="rps-game">
-                                <div class="rps-choices">
-                                    <button onclick="playRPS('rock')"><i class="fas fa-hand-fist"></i></button>
-                                    <button onclick="playRPS('paper')"><i class="fas fa-hand"></i></button>
-                                    <button onclick="playRPS('scissors')"><i class="fas fa-hand-peace"></i></button>
-                                </div>
-                                <div class="rps-result" id="rpsResult">Choose your move</div>
-                                <div class="rps-score">
-                                    <span>You: <span id="rpsPlayerScore">0</span></span>
-                                    <span>CPU: <span id="rpsCpuScore">0</span></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Hangman -->
-                        <div class="game-card glass" data-game-type="hangman">
-                            <div class="game-header">
-                                <h3><i class="fas fa-skull"></i> Hangman</h3>
-                                <span class="game-badge">WORD</span>
-                            </div>
-                            <div class="hangman-game">
-                                <canvas id="hangmanCanvas" width="200" height="200"></canvas>
-                                <div id="hangmanWord" class="hangman-word"></div>
-                                <div class="hangman-letters" id="hangmanLetters"></div>
-                                <div class="hangman-status" id="hangmanStatus"></div>
-                                <button class="reset-game-btn" onclick="resetHangman()">New Word</button>
-                            </div>
-                        </div>
+                        <div class="game-card"><h3><i class="fas fa-times"></i> Tic Tac Toe</h3><div class="tictactoe-grid" id="tictactoeGrid"></div><div id="tictactoeStatus">Player X's turn</div><button onclick="resetTicTacToe()">Reset</button></div>
+                        <!-- 2048 -->
+                        <div class="game-card"><h3><i class="fas fa-puzzle-piece"></i> 2048</h3><div class="game-container"><canvas id="game2048Canvas" width="400" height="400"></canvas><div class="game-overlay" id="game2048Overlay"><button class="start-game-btn" onclick="start2048Game()">Start Game</button></div></div><div>Score: <span id="game2048Score">0</span></div><div class="game-controls"><button onclick="move2048('up')">↑</button><button onclick="move2048('left')">←</button><button onclick="move2048('down')">↓</button><button onclick="move2048('right')">→</button></div></div>
                     </div>
                 </div>
-                
-                <!-- Fun Facts Page -->
-                <div class="page" id="factsPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-lightbulb"></i> Fun Facts Universe</h2>
-                        <button class="refresh-btn" id="refreshFact"><i class="fas fa-sync-alt"></i> New Fact</button>
-                    </div>
-                    
-                    <div class="facts-container">
-                        <div class="fact-card glass" id="factCard">
-                            <div class="fact-icon">
-                                <i class="fas fa-brain"></i>
-                            </div>
-                            <div id="factText" class="fact-text">Click for amazing facts!</div>
-                            <div id="factCategory" class="fact-category"></div>
-                        </div>
-                        
-                        <div class="fact-categories glass">
-                            <h3>Categories</h3>
-                            <div class="category-buttons">
-                                <button class="fact-cat-btn" data-cat="science">Science</button>
-                                <button class="fact-cat-btn" data-cat="history">History</button>
-                                <button class="fact-cat-btn" data-cat="animals">Animals</button>
-                                <button class="fact-cat-btn" data-cat="space">Space</button>
-                                <button class="fact-cat-btn" data-cat="technology">Technology</button>
-                                <button class="fact-cat-btn" data-cat="random">Random</button>
-                            </div>
-                        </div>
-                        
-                        <div class="fact-history glass">
-                            <h3>Recently Viewed</h3>
-                            <div id="factHistory" class="fact-history-list"></div>
-                        </div>
-                    </div>
-                </div>
-                
+
+                <!-- Facts Page -->
+                <div class="page" id="factsPage"><h2><i class="fas fa-lightbulb"></i> Fun Facts</h2><div class="glass"><div class="fact-text" id="factText">Click for a fact!</div><button onclick="getRandomFact()">New Fact</button></div></div>
+
                 <!-- Jokes Page -->
-                <div class="page" id="jokesPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-laugh"></i> Jokes Factory</h2>
-                        <div class="joke-filters">
-                            <button class="joke-type-btn active" data-type="any">Any</button>
-                            <button class="joke-type-btn" data-type="programming">Programming</button>
-                            <button class="joke-type-btn" data-type="dad">Dad Jokes</button>
-                            <button class="joke-type-btn" data-type="pun">Puns</button>
-                            <button class="joke-type-btn" data-type="knock-knock">Knock-Knock</button>
-                        </div>
-                    </div>
-                    
-                    <div class="jokes-container">
-                        <div class="joke-card glass" id="jokeCard">
-                            <div class="joke-setup" id="jokeSetup"></div>
-                            <div class="joke-punchline" id="jokePunchline"></div>
-                            <button class="reveal-btn" id="revealJoke">Reveal Punchline</button>
-                            <button class="next-joke-btn" id="nextJoke"><i class="fas fa-forward"></i> Next Joke</button>
-                        </div>
-                        
-                        <div class="joke-stats glass">
-                            <h3>Joke Statistics</h3>
-                            <div class="joke-stat-item">
-                                <span>Jokes told today:</span>
-                                <span id="jokesToday">0</span>
-                            </div>
-                            <div class="joke-stat-item">
-                                <span>Funniest category:</span>
-                                <span id="funniestCategory">Programming</span>
-                            </div>
-                            <div class="joke-stat-item">
-                                <span>Your favorites:</span>
-                                <span id="favoriteCount">0</span>
-                            </div>
-                        </div>
-                        
-                        <div class="favorite-jokes glass">
-                            <h3><i class="fas fa-star"></i> Your Favorite Jokes</h3>
-                            <div id="favoriteJokesList" class="favorite-list"></div>
-                        </div>
-                    </div>
-                </div>
-                
+                <div class="page" id="jokesPage"><h2><i class="fas fa-laugh"></i> Jokes</h2><div class="glass"><div id="jokeSetup"></div><div id="jokePunchline" style="margin-top:10px; font-weight:bold;"></div><button onclick="revealPunchline()">Reveal</button><button onclick="getRandomJoke()">Next Joke</button></div></div>
+
                 <!-- Quotes Page -->
-                <div class="page" id="quotesPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-quote-right"></i> Inspirational Quotes</h2>
-                        <button class="refresh-btn" id="refreshQuote"><i class="fas fa-sync-alt"></i> New Quote</button>
-                    </div>
-                    
-                    <div class="quotes-container">
-                        <div class="quote-card glass" id="quoteCard">
-                            <i class="fas fa-quote-left quote-icon"></i>
-                            <div id="quoteText" class="quote-text">Loading...</div>
-                            <div id="quoteAuthor" class="quote-author"></div>
-                            <div class="quote-actions">
-                                <button onclick="shareQuote()"><i class="fas fa-share"></i> Share</button>
-                                <button onclick="saveQuote()"><i class="fas fa-heart"></i> Save</button>
-                            </div>
-                        </div>
-                        
-                        <div class="quote-categories glass">
-                            <h3>Categories</h3>
-                            <select id="quoteCategory" class="quote-select">
-                                <option value="inspirational">Inspirational</option>
-                                <option value="motivation">Motivation</option>
-                                <option value="life">Life</option>
-                                <option value="success">Success</option>
-                                <option value="wisdom">Wisdom</option>
-                                <option value="love">Love</option>
-                                <option value="happiness">Happiness</option>
-                            </select>
-                        </div>
-                        
-                        <div class="saved-quotes glass">
-                            <h3><i class="fas fa-heart"></i> Saved Quotes</h3>
-                            <div id="savedQuotesList" class="saved-list"></div>
-                        </div>
-                    </div>
-                </div>
-                
+                <div class="page" id="quotesPage"><h2><i class="fas fa-quote-right"></i> Quotes</h2><div class="glass"><div id="quoteText"></div><div id="quoteAuthor" style="margin-top:10px; color:var(--primary);"></div><button onclick="getRandomQuote()">New Quote</button></div></div>
+
                 <!-- Crypto Page -->
-                <div class="page" id="cryptoPage">
-                    <div class="page-header">
-                        <h2><i class="fab fa-bitcoin"></i> Crypto Prices</h2>
-                        <button class="refresh-btn" id="refreshCrypto"><i class="fas fa-sync-alt"></i> Refresh</button>
-                    </div>
-                    
-                    <div class="crypto-grid" id="cryptoGrid">
-                        <div class="loading">Loading crypto data...</div>
-                    </div>
-                    
-                    <div class="crypto-converter glass">
-                        <h3>Crypto Converter</h3>
-                        <div class="converter-inputs">
-                            <input type="number" id="cryptoAmount" placeholder="Amount" value="1">
-                            <select id="cryptoFrom">
-                                <option value="bitcoin">BTC</option>
-                                <option value="ethereum">ETH</option>
-                                <option value="dogecoin">DOGE</option>
-                            </select>
-                            <span>to</span>
-                            <select id="cryptoTo">
-                                <option value="usd">USD</option>
-                                <option value="eur">EUR</option>
-                                <option value="gbp">GBP</option>
-                            </select>
-                            <button id="convertCrypto">Convert</button>
-                        </div>
-                        <div id="conversionResult" class="conversion-result"></div>
-                    </div>
-                </div>
-                
-                <!-- Movies Page -->
-                <div class="page" id="moviesPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-film"></i> Movie Database</h2>
-                        <div class="search-box">
-                            <input type="text" id="movieSearch" placeholder="Search movies...">
-                            <button id="searchMovies"><i class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="movie-categories">
-                        <button class="movie-cat-btn active" data-cat="popular">Popular</button>
-                        <button class="movie-cat-btn" data-cat="top_rated">Top Rated</button>
-                        <button class="movie-cat-btn" data-cat="upcoming">Upcoming</button>
-                        <button class="movie-cat-btn" data-cat="now_playing">Now Playing</button>
-                    </div>
-                    
-                    <div class="movies-grid" id="moviesGrid">
-                        <div class="loading">Loading movies...</div>
-                    </div>
-                </div>
-                
-                <!-- Trivia Page -->
-                <div class="page" id="triviaPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-question-circle"></i> Trivia Quiz</h2>
-                        <div class="trivia-controls">
-                            <select id="triviaCategory">
-                                <option value="9">General Knowledge</option>
-                                <option value="10">Books</option>
-                                <option value="11">Film</option>
-                                <option value="12">Music</option>
-                                <option value="14">Television</option>
-                                <option value="15">Video Games</option>
-                                <option value="17">Science & Nature</option>
-                                <option value="18">Computers</option>
-                                <option value="19">Mathematics</option>
-                                <option value="20">Mythology</option>
-                                <option value="21">Sports</option>
-                                <option value="22">Geography</option>
-                                <option value="23">History</option>
-                                <option value="24">Politics</option>
-                                <option value="25">Art</option>
-                                <option value="26">Celebrities</option>
-                                <option value="27">Animals</option>
-                            </select>
-                            <select id="triviaDifficulty">
-                                <option value="easy">Easy</option>
-                                <option value="medium">Medium</option>
-                                <option value="hard">Hard</option>
-                            </select>
-                            <button id="startTrivia" class="start-trivia-btn">Start Quiz</button>
-                        </div>
-                    </div>
-                    
-                    <div class="trivia-container glass" id="triviaContainer">
-                        <div class="trivia-question" id="triviaQuestion"></div>
-                        <div class="trivia-options" id="triviaOptions"></div>
-                        <div class="trivia-stats" id="triviaStats">
-                            <span>Score: <span id="triviaScore">0</span></span>
-                            <span>Question: <span id="triviaCurrent">1</span>/<span id="triviaTotal">10</span></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Dictionary Page -->
-                <div class="page" id="dictionaryPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-book"></i> Dictionary</h2>
-                        <div class="search-box">
-                            <input type="text" id="wordSearch" placeholder="Enter a word..." value="hello">
-                            <button id="searchWord"><i class="fas fa-search"></i></button>
-                        </div>
-                    </div>
-                    
-                    <div class="dictionary-container glass" id="dictionaryContainer">
-                        <div class="loading">Search for a word...</div>
-                    </div>
-                </div>
-                
-                <!-- Translator Page -->
-                <div class="page" id="translatePage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-language"></i> Translator</h2>
-                    </div>
-                    
-                    <div class="translator-container glass">
-                        <div class="translator-inputs">
-                            <div class="language-select">
-                                <select id="sourceLang">
-                                    <option value="en">English</option>
-                                    <option value="es">Spanish</option>
-                                    <option value="fr">French</option>
-                                    <option value="de">German</option>
-                                    <option value="it">Italian</option>
-                                    <option value="pt">Portuguese</option>
-                                    <option value="ru">Russian</option>
-                                    <option value="ja">Japanese</option>
-                                    <option value="ko">Korean</option>
-                                    <option value="zh">Chinese</option>
-                                    <option value="ar">Arabic</option>
-                                    <option value="hi">Hindi</option>
-                                    <option value="ur">Urdu</option>
-                                    <option value="ps">Pashto</option>
-                                    <option value="fa">Persian</option>
-                                </select>
-                                <button id="swapLangs"><i class="fas fa-exchange-alt"></i></button>
-                                <select id="targetLang">
-                                    <option value="ur">Urdu</option>
-                                    <option value="en">English</option>
-                                    <option value="es">Spanish</option>
-                                    <option value="fr">French</option>
-                                    <option value="de">German</option>
-                                    <option value="it">Italian</option>
-                                    <option value="pt">Portuguese</option>
-                                    <option value="ru">Russian</option>
-                                    <option value="ja">Japanese</option>
-                                    <option value="ko">Korean</option>
-                                    <option value="zh">Chinese</option>
-                                    <option value="ar">Arabic</option>
-                                    <option value="hi">Hindi</option>
-                                    <option value="ps">Pashto</option>
-                                    <option value="fa">Persian</option>
-                                </select>
-                            </div>
-                            <textarea id="sourceText" placeholder="Enter text to translate..." rows="4"></textarea>
-                            <button id="translateBtn" class="translate-btn">Translate</button>
-                            <textarea id="targetText" placeholder="Translation..." rows="4" readonly></textarea>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- QR Generator Page -->
-                <div class="page" id="qrPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
-                    </div>
-                    
-                    <div class="qr-container glass">
-                        <div class="qr-inputs">
-                            <input type="text" id="qrText" placeholder="Enter text or URL..." value="https://t.me/TalkMatebot">
-                            <select id="qrSize">
-                                <option value="100">Small</option>
-                                <option value="200" selected>Medium</option>
-                                <option value="300">Large</option>
-                            </select>
-                            <button id="generateQR">Generate QR Code</button>
-                        </div>
-                        <div class="qr-preview" id="qrPreview"></div>
-                        <button id="downloadQR" class="download-btn">Download QR Code</button>
-                    </div>
-                </div>
-                
-                <!-- Password Generator Page -->
-                <div class="page" id="passwordPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-lock"></i> Password Generator</h2>
-                    </div>
-                    
-                    <div class="password-container glass">
-                        <div class="password-display">
-                            <input type="text" id="passwordOutput" readonly>
-                            <button id="copyPassword"><i class="fas fa-copy"></i></button>
-                        </div>
-                        
-                        <div class="password-options">
-                            <div class="option">
-                                <label>Length: <span id="lengthValue">12</span></label>
-                                <input type="range" id="passwordLength" min="6" max="30" value="12">
-                            </div>
-                            
-                            <div class="option">
-                                <label>
-                                    <input type="checkbox" id="includeUppercase" checked> Include Uppercase (A-Z)
-                                </label>
-                            </div>
-                            
-                            <div class="option">
-                                <label>
-                                    <input type="checkbox" id="includeLowercase" checked> Include Lowercase (a-z)
-                                </label>
-                            </div>
-                            
-                            <div class="option">
-                                <label>
-                                    <input type="checkbox" id="includeNumbers" checked> Include Numbers (0-9)
-                                </label>
-                            </div>
-                            
-                            <div class="option">
-                                <label>
-                                    <input type="checkbox" id="includeSymbols"> Include Symbols (!@#$%^&*)
-                                </label>
-                            </div>
-                            
-                            <button id="generatePassword" class="generate-btn">Generate Password</button>
-                        </div>
-                        
-                        <div class="password-strength">
-                            <h4>Password Strength</h4>
-                            <div class="strength-meter" id="strengthMeter">
-                                <div class="strength-bar" style="width: 0%"></div>
-                            </div>
-                            <p id="strengthText">Very Weak</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Settings Page -->
-                <div class="page" id="settingsPage">
-                    <div class="page-header">
-                        <h2><i class="fas fa-cog"></i> Settings</h2>
-                    </div>
-                    
-                    <div class="settings-container">
-                        <div class="settings-group glass">
-                            <h3>Appearance</h3>
-                            <div class="setting-item">
-                                <span>Dark Mode</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="darkModeToggle">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                            <div class="setting-item">
-                                <span>Animations</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="animationsToggle" checked>
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                            <div class="setting-item">
-                                <span>Font Size</span>
-                                <select id="fontSize">
-                                    <option value="small">Small</option>
-                                    <option value="medium" selected>Medium</option>
-                                    <option value="large">Large</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group glass">
-                            <h3>Notifications</h3>
-                            <div class="setting-item">
-                                <span>Push Notifications</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="pushNotifications">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                            <div class="setting-item">
-                                <span>Daily Quote</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="dailyQuoteNotify" checked>
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                            <div class="setting-item">
-                                <span>Weather Alerts</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="weatherAlerts" checked>
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group glass">
-                            <h3>Language</h3>
-                            <div class="setting-item">
-                                <span>App Language</span>
-                                <select id="appLanguage">
-                                    <option value="en">English</option>
-                                    <option value="es">Spanish</option>
-                                    <option value="fr">French</option>
-                                    <option value="de">German</option>
-                                    <option value="ar">Arabic</option>
-                                    <option value="hi">Hindi</option>
-                                    <option value="ur">Urdu</option>
-                                    <option value="ps">Pashto</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group glass">
-                            <h3>Data & Storage</h3>
-                            <div class="setting-item">
-                                <span>Clear Cache</span>
-                                <button id="clearCache" class="danger-btn">Clear</button>
-                            </div>
-                            <div class="setting-item">
-                                <span>Export Data</span>
-                                <button id="exportData">Export</button>
-                            </div>
-                            <div class="setting-item">
-                                <span>Storage Used</span>
-                                <span id="storageUsed">0 MB</span>
-                            </div>
-                        </div>
-                        
-                        <div class="settings-group glass">
-                            <h3>About</h3>
-                            <div class="about-info">
-                                <p><strong>Version:</strong> 2.0.0</p>
-                                <p><strong>Developer:</strong> Farid Ahmad Khan</p>
-                                <p><strong>Telegram:</strong> @faridahmadkhan</p>
-                                <p><strong>GitHub:</strong> faridahmadkan</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="page" id="cryptoPage"><h2><i class="fab fa-bitcoin"></i> Crypto Prices</h2><div class="crypto-grid" id="cryptoGrid"><div class="loading">Loading...</div></div></div>
             </main>
-            
-            <!-- Bottom Navigation -->
+
             <nav class="bottom-nav">
-                <button class="nav-btn active" data-page="dashboard">
-                    <i class="fas fa-rocket"></i>
-                    <span>Home</span>
-                </button>
-                <button class="nav-btn" data-page="weather">
-                    <i class="fas fa-cloud-sun"></i>
-                    <span>Weather</span>
-                </button>
-                <button class="nav-btn" data-page="news">
-                    <i class="fas fa-newspaper"></i>
-                    <span>News</span>
-                </button>
-                <button class="nav-btn" data-page="games">
-                    <i class="fas fa-gamepad"></i>
-                    <span>Games</span>
-                </button>
-                <button class="nav-btn" data-page="facts">
-                    <i class="fas fa-lightbulb"></i>
-                    <span>Facts</span>
-                </button>
+                <button class="nav-btn active" data-page="dashboard"><i class="fas fa-rocket"></i><span>Home</span></button>
+                <button class="nav-btn" data-page="weather"><i class="fas fa-cloud-sun"></i><span>Weather</span></button>
+                <button class="nav-btn" data-page="news"><i class="fas fa-newspaper"></i><span>News</span></button>
+                <button class="nav-btn" data-page="games"><i class="fas fa-gamepad"></i><span>Games</span></button>
+                <button class="nav-btn" data-page="crypto"><i class="fab fa-bitcoin"></i><span>Crypto</span></button>
             </nav>
         </div>
     </div>
-    
-    <!-- Toast Notification -->
     <div class="toast-container" id="toastContainer"></div>
-    
-    <!-- Achievement Popup -->
-    <div class="achievement-popup" id="achievementPopup">
-        <i class="fas fa-trophy"></i>
-        <div>
-            <h4>Achievement Unlocked!</h4>
-            <p id="achievementName"></p>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+
+    <script>
+        // Telegram WebApp
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.ready(); tg.expand(); }
+
+        // State
+        let userPoints = parseInt(localStorage.getItem('userPoints')) || 0;
+        let currentPage = 'dashboard';
+        let darkMode = localStorage.getItem('darkMode') === 'true';
+
+        // DOM Elements
+        const splash = document.getElementById('splashScreen');
+        const mainApp = document.getElementById('mainApp');
+        
+        setTimeout(() => {
+            splash.style.display = 'none';
+            mainApp.style.display = 'block';
+            showToast('Welcome to TalkMate Universe!', 'success');
+        }, 2200);
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function addPoints(points) {
+            userPoints += points;
+            localStorage.setItem('userPoints', userPoints);
+            document.getElementById('userPoints').textContent = userPoints;
+            document.getElementById('userLevel').textContent = Math.floor(userPoints / 500) + 1;
+        }
+
+        // Navigation
+        function navigateTo(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${page}Page`).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll(`.nav-btn[data-page="${page}"]`).forEach(btn => btn.classList.add('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll(`.menu-item[data-page="${page}"]`).forEach(item => item.classList.add('active'));
+            currentPage = page;
+            loadPageData(page);
+        }
+
+        function loadPageData(page) {
+            if (page === 'weather') getWeather();
+            if (page === 'news') getNews();
+            if (page === 'crypto') getCrypto();
+            if (page === 'facts') getRandomFact();
+            if (page === 'jokes') getRandomJoke();
+            if (page === 'quotes') getRandomQuote();
+        }
+
+        // Weather API
+        async function getWeather() {
+            const city = document.getElementById('weatherSearch')?.value || 'London';
+            try {
+                const geo = await axios.get(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`);
+                if (!geo.data.results) throw new Error('City not found');
+                const { latitude, longitude, name } = geo.data.results[0];
+                const weather = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+                const temp = Math.round(weather.data.current_weather.temperature);
+                document.getElementById('weatherDisplay').innerHTML = `<div style="text-align:center"><i class="fas fa-cloud-sun" style="font-size:48px"></i><h2>${name}</h2><div style="font-size:48px">${temp}°C</div><div>${weather.data.current_weather.weathercode === 0 ? 'Clear' : 'Cloudy'}</div></div>`;
+                document.getElementById('quickWeather').innerHTML = `${temp}°C, ${name}`;
+            } catch(e) { document.getElementById('weatherDisplay').innerHTML = '<div class="loading">Weather unavailable</div>'; }
+        }
+
+        // News API
+        async function getNews() {
+            try {
+                const res = await axios.get('https://gnews.io/api/v4/top-headlines?token=pub_45510b243dd7ce29fdf845a2e7940cec57568&lang=en&max=8');
+                const articles = res.data.articles;
+                document.getElementById('newsGrid').innerHTML = articles.map(a => `
+                    <div class="news-card" onclick="window.open('${a.url}', '_blank')">
+                        <img class="news-image" src="${a.image || 'https://via.placeholder.com/300x160?text=News'}" onerror="this.src='https://via.placeholder.com/300x160'">
+                        <div class="news-content"><div class="news-title">${a.title}</div><div style="font-size:12px;color:var(--text-muted)">${a.source.name}</div></div>
+                    </div>
+                `).join('');
+                document.getElementById('quickNews').innerHTML = `${articles.length} articles`;
+            } catch(e) { document.getElementById('newsGrid').innerHTML = '<div class="loading">News unavailable</div>'; }
+        }
+
+        // Crypto API
+        async function getCrypto() {
+            try {
+                const res = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,dogecoin,solana&vs_currencies=usd&include_24hr_change=true');
+                const data = res.data;
+                const cryptos = [
+                    { id: 'bitcoin', name: 'Bitcoin', icon: 'fab fa-bitcoin' },
+                    { id: 'ethereum', name: 'Ethereum', icon: 'fab fa-ethereum' },
+                    { id: 'dogecoin', name: 'Dogecoin', icon: 'fas fa-dog' },
+                    { id: 'solana', name: 'Solana', icon: 'fas fa-sun' }
+                ];
+                document.getElementById('cryptoGrid').innerHTML = cryptos.map(c => {
+                    const coin = data[c.id];
+                    const changeClass = coin?.usd_24h_change >= 0 ? 'positive' : 'negative';
+                    return `<div class="crypto-card"><div class="crypto-icon"><i class="${c.icon}"></i></div><div><h4>${c.name}</h4><div>$${coin?.usd?.toLocaleString() || 'N/A'}</div><div class="crypto-change ${changeClass}">${coin?.usd_24h_change?.toFixed(2) || 0}%</div></div></div>`;
+                }).join('');
+                if(data.bitcoin) document.getElementById('quickBtc').innerHTML = `$${data.bitcoin.usd.toLocaleString()}`;
+            } catch(e) { document.getElementById('cryptoGrid').innerHTML = '<div class="loading">Crypto data unavailable</div>'; }
+        }
+
+        // Facts
+        async function getRandomFact() {
+            try {
+                const res = await axios.get('https://uselessfacts.jsph.pl/api/v2/facts/random');
+                document.getElementById('factText').innerHTML = res.data.text;
+                document.getElementById('dailyFact').innerHTML = res.data.text;
+                addPoints(5);
+            } catch(e) { document.getElementById('factText').innerHTML = 'Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs!'; }
+        }
+
+        // Jokes
+        let currentJoke = null;
+        async function getRandomJoke() {
+            try {
+                const res = await axios.get('https://v2.jokeapi.dev/joke/Any?type=twopart');
+                currentJoke = res.data;
+                document.getElementById('jokeSetup').innerHTML = res.data.setup;
+                document.getElementById('jokePunchline').innerHTML = '';
+                addPoints(5);
+            } catch(e) { document.getElementById('jokeSetup').innerHTML = 'Why do programmers prefer dark mode?'; }
+        }
+        function revealPunchline() {
+            if(currentJoke) document.getElementById('jokePunchline').innerHTML = currentJoke.delivery;
+        }
+
+        // Quotes
+        async function getRandomQuote() {
+            try {
+                const res = await axios.get('https://api.quotable.io/random');
+                document.getElementById('quoteText').innerHTML = `"${res.data.content}"`;
+                document.getElementById('quoteAuthor').innerHTML = `— ${res.data.author}`;
+                document.getElementById('dailyQuote').innerHTML = `"${res.data.content.substring(0, 100)}..."`;
+                document.getElementById('dailyAuthor').innerHTML = `— ${res.data.author}`;
+                addPoints(5);
+            } catch(e) { document.getElementById('quoteText').innerHTML = '"The only limit is your imagination."'; }
+        }
+
+        // Snake Game
+        let snakeCanvas, snakeCtx, snake, direction, food, snakeScore = 0, snakeGameLoop, snakeActive = false;
+        function startSnakeGame() {
+            snakeCanvas = document.getElementById('snakeCanvas');
+            snakeCtx = snakeCanvas.getContext('2d');
+            snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+            direction = 'right';
+            snakeScore = 0;
+            document.getElementById('snakeScore').innerHTML = '0';
+            food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+            snakeActive = true;
+            document.getElementById('snakeOverlay').classList.add('hidden');
+            if(snakeGameLoop) clearInterval(snakeGameLoop);
+            snakeGameLoop = setInterval(updateSnake, 150);
+        }
+        function updateSnake() {
+            if(!snakeActive) return;
+            const head = {...snake[0]};
+            if(direction === 'right') head.x++;
+            if(direction === 'left') head.x--;
+            if(direction === 'up') head.y--;
+            if(direction === 'down') head.y++;
+            if(head.x<0 || head.x>=20 || head.y<0 || head.y>=20 || snake.some(s => s.x===head.x && s.y===head.y)) { gameOverSnake(); return; }
+            snake.unshift(head);
+            if(head.x===food.x && head.y===food.y) {
+                snakeScore += 10;
+                document.getElementById('snakeScore').innerHTML = snakeScore;
+                let high = parseInt(localStorage.getItem('snakeHigh')||0);
+                if(snakeScore>high) { localStorage.setItem('snakeHigh', snakeScore); document.getElementById('snakeHighScore').innerHTML = snakeScore; }
+                food = {x: Math.floor(Math.random()*20), y: Math.floor(Math.random()*20)};
+                addPoints(10);
+            } else { snake.pop(); }
+            drawSnake();
+        }
+        function drawSnake() {
+            snakeCtx.fillStyle = '#0f172a';
+            snakeCtx.fillRect(0,0,400,400);
+            snake.forEach(s => { snakeCtx.fillStyle = '#22c55e'; snakeCtx.fillRect(s.x*20, s.y*20, 18,18); });
+            snakeCtx.fillStyle = '#ef4444';
+            snakeCtx.fillRect(food.x*20, food.y*20, 18,18);
+        }
+        function changeDirection(dir) {
+            if((dir==='up' && direction!=='down') || (dir==='down' && direction!=='up') || (dir==='left' && direction!=='right') || (dir==='right' && direction!=='left'))
+                direction = dir;
+        }
+        function gameOverSnake() { snakeActive = false; clearInterval(snakeGameLoop); document.getElementById('snakeOverlay').classList.remove('hidden'); showToast(`Game Over! Score: ${snakeScore}`, 'info'); }
+
+        // 2048 Game
+        let board2048 = Array(4).fill().map(() => Array(4).fill(0));
+        let score2048 = 0, game2048Active = false, ctx2048;
+        function start2048Game() {
+            ctx2048 = document.getElementById('game2048Canvas').getContext('2d');
+            board2048 = Array(4).fill().map(() => Array(4).fill(0));
+            score2048 = 0;
+            document.getElementById('game2048Score').innerHTML = '0';
+            addRandom2048(); addRandom2048();
+            game2048Active = true;
+            document.getElementById('game2048Overlay').classList.add('hidden');
+            draw2048();
+        }
+        function addRandom2048() {
+            let empty = [];
+            for(let i=0;i<4;i++) for(let j=0;j<4;j++) if(board2048[i][j]===0) empty.push([i,j]);
+            if(empty.length) { let [i,j] = empty[Math.floor(Math.random()*empty.length)]; board2048[i][j] = Math.random()<0.9?2:4; }
+        }
+        function draw2048() {
+            ctx2048.fillStyle = '#0f172a';
+            ctx2048.fillRect(0,0,400,400);
+            for(let i=0;i<4;i++) for(let j=0;j<4;j++) {
+                let val = board2048[i][j];
+                ctx2048.fillStyle = val ? '#f59e0b' : '#1e293b';
+                ctx2048.fillRect(j*100+5, i*100+5, 90, 90);
+                if(val) { ctx2048.fillStyle = 'white'; ctx2048.font = 'bold 28px Inter'; ctx2048.fillText(val, j*100+50, i*100+60); }
+            }
+        }
+        function move2048(dir) {
+            if(!game2048Active) return;
+            let old = JSON.parse(JSON.stringify(board2048));
+            if(dir === 'left') { for(let i=0;i<4;i++) { let row = board2048[i].filter(v=>v!==0); for(let j=0;j<row.length-1;j++) if(row[j]===row[j+1]) { row[j]*=2; score2048+=row[j]; row.splice(j+1,1); } while(row.length<4) row.push(0); board2048[i]=row; } }
+            if(dir === 'right') { for(let i=0;i<4;i++) { let row = board2048[i].filter(v=>v!==0).reverse(); for(let j=0;j<row.length-1;j++) if(row[j]===row[j+1]) { row[j]*=2; score2048+=row[j]; row.splice(j+1,1); } while(row.length<4) row.push(0); board2048[i]=row.reverse(); } }
+            if(dir === 'up') { for(let j=0;j<4;j++) { let col = []; for(let i=0;i<4;i++) if(board2048[i][j]!==0) col.push(board2048[i][j]); for(let i=0;i<col.length-1;i++) if(col[i]===col[i+1]) { col[i]*=2; score2048+=col[i]; col.splice(i+1,1); } while(col.length<4) col.push(0); for(let i=0;i<4;i++) board2048[i][j]=col[i]; } }
+            if(dir === 'down') { for(let j=0;j<4;j++) { let col = []; for(let i=0;i<4;i++) if(board2048[i][j]!==0) col.push(board2048[i][j]); col.reverse(); for(let i=0;i<col.length-1;i++) if(col[i]===col[i+1]) { col[i]*=2; score2048+=col[i]; col.splice(i+1,1); } while(col.length<4) col.push(0); col.reverse(); for(let i=0;i<4;i++) board2048[i][j]=col[i]; } }
+            if(JSON.stringify(old) !== JSON.stringify(board2048)) { addRandom2048(); document.getElementById('game2048Score').innerHTML = score2048; draw2048(); addPoints(5); }
+            let hasEmpty = board2048.some(row=>row.includes(0));
+            if(!hasEmpty) { game2048Active = false; document.getElementById('game2048Overlay').classList.remove('hidden'); showToast('Game Over!', 'info'); }
+        }
+
+        // Memory Game
+        let memoryCards = [], memoryFlipped = [], memoryMatched = [], memoryMoves = 0, memoryLock = false;
+        function initMemoryGame() {
+            const emojis = ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼'];
+            memoryCards = [...emojis, ...emojis].sort(()=>Math.random()-0.5);
+            memoryFlipped = Array(16).fill(false);
+            memoryMatched = Array(16).fill(false);
+            memoryMoves = 0;
+            document.getElementById('memoryMoves').innerHTML = '0';
+            document.getElementById('memoryMatches').innerHTML = '0';
+            renderMemory();
+        }
+        function renderMemory() {
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = memoryCards.map((c,i) => `<div class="memory-card ${memoryFlipped[i]||memoryMatched[i]?'flipped':''}" onclick="flipCard(${i})">${memoryFlipped[i]||memoryMatched[i]?c:'?'}</div>`).join('');
+        }
+        function flipCard(idx) {
+            if(memoryLock || memoryMatched[idx] || memoryFlipped[idx]) return;
+            memoryFlipped[idx] = true;
+            renderMemory();
+            let flipped = memoryFlipped.reduce((a,v,i)=> v && !memoryMatched[i] ? [...a,i] : a, []);
+            if(flipped.length===2) {
+                memoryMoves++;
+                document.getElementById('memoryMoves').innerHTML = memoryMoves;
+                memoryLock = true;
+                if(memoryCards[flipped[0]] === memoryCards[flipped[1]]) {
+                    memoryMatched[flipped[0]] = true;
+                    memoryMatched[flipped[1]] = true;
+                    memoryFlipped[flipped[0]] = false;
+                    memoryFlipped[flipped[1]] = false;
+                    let matches = memoryMatched.filter(m=>m).length/2;
+                    document.getElementById('memoryMatches').innerHTML = matches;
+                    if(matches===8) { showToast('You won!', 'success'); addPoints(50); }
+                    memoryLock = false;
+                    renderMemory();
+                } else { setTimeout(()=>{ memoryFlipped[flipped[0]]=false; memoryFlipped[flipped[1]]=false; memoryLock=false; renderMemory(); }, 1000); }
+            }
+        }
+
+        // Tic Tac Toe
+        let tttBoard = ['','','','','','','','',''], tttTurn = 'X', tttActive = true;
+        function initTicTacToe() {
+            tttBoard = ['','','','','','','','','']; tttTurn='X'; tttActive=true;
+            renderTicTacToe();
+        }
+        function renderTicTacToe() {
+            const grid = document.getElementById('tictactoeGrid');
+            grid.innerHTML = tttBoard.map((c,i) => `<div class="tictactoe-cell" onclick="makeMove(${i})">${c}</div>`).join('');
+            document.getElementById('tictactoeStatus').innerHTML = tttActive ? `Player ${tttTurn}'s turn` : 'Game Over';
+        }
+        function makeMove(idx) {
+            if(!tttActive || tttBoard[idx]!=='') return;
+            tttBoard[idx] = tttTurn;
+            if(checkWin(tttTurn)) { document.getElementById('tictactoeStatus').innerHTML = `Player ${tttTurn} wins!`; tttActive=false; addPoints(25); renderTicTacToe(); return; }
+            if(tttBoard.every(c=>c!=='')) { document.getElementById('tictactoeStatus').innerHTML = "It's a draw!"; tttActive=false; renderTicTacToe(); return; }
+            tttTurn = tttTurn==='X' ? 'O' : 'X';
+            renderTicTacToe();
+        }
+        function checkWin(player) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(w => w.every(i => tttBoard[i]===player));
+        }
+        function resetTicTacToe() { initTicTacToe(); }
+
+        // Theme
+        function applyTheme() {
+            document.body.classList.toggle('dark-mode', darkMode);
+            localStorage.setItem('darkMode', darkMode);
+        }
+        document.getElementById('themeToggle').addEventListener('click', () => { darkMode = !darkMode; applyTheme(); });
+
+        // Menu
+        document.getElementById('menuToggle').addEventListener('click', () => { document.getElementById('sideMenu').classList.add('active'); document.getElementById('overlay').classList.add('active'); });
+        document.getElementById('closeMenu').addEventListener('click', () => { document.getElementById('sideMenu').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); });
+        document.getElementById('overlay').addEventListener('click', () => { document.getElementById('sideMenu').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); });
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => navigateTo(btn.dataset.page)));
+        document.querySelectorAll('.menu-item').forEach(item => item.addEventListener('click', (e) => { e.preventDefault(); navigateTo(item.dataset.page); document.getElementById('sideMenu').classList.remove('active'); document.getElementById('overlay').classList.remove('active'); }));
+
+        // Weather Search
+        document.getElementById('weatherSearchBtn')?.addEventListener('click', getWeather);
+        document.getElementById('weatherSearch')?.addEventListener('keypress', (e) => { if(e.key==='Enter') getWeather(); });
+
+        // Initialize
+        document.getElementById('snakeHighScore').innerHTML = localStorage.getItem('snakeHigh')||0;
+        getWeather();
+        getNews();
+        getCrypto();
+        getRandomFact();
+        getRandomJoke();
+        getRandomQuote();
+        initMemoryGame();
+        initTicTacToe();
+        applyTheme();
+        document.getElementById('userPoints').innerHTML = userPoints;
+        document.getElementById('userLevel').innerHTML = Math.floor(userPoints/500)+1;
+        setInterval(() => { if(currentPage === 'crypto') getCrypto(); }, 30000);
+    </script>
 </body>
 </html>
